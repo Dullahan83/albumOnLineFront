@@ -1,7 +1,7 @@
-import { ComponentPropsWithoutRef } from "react";
+import { Skeleton } from "@mui/material";
+import React, { ComponentPropsWithoutRef, Suspense } from "react";
 import Masonry from "react-masonry-css";
 import { Image } from "../Context/AuthContext";
-import CustomPicture from "./CustomPicture";
 import { getMonth } from "./Utils/func";
 
 const breakpointColumnsObj = {
@@ -25,6 +25,8 @@ type MonthContainerProps = {
   originalList: Image[];
 } & ComponentPropsWithoutRef<"div">;
 
+const LazyCustomPicture = React.lazy(() => import("./CustomPicture"));
+
 const MonthContainer = ({
   handleClick,
   handleOpen,
@@ -47,25 +49,32 @@ const MonthContainer = ({
       >
         {data.map((item, i) => {
           return (
-            <CustomPicture
-              {...props}
+            <Suspense
+              fallback={
+                <Skeleton variant="rectangular" width={"100%"} height={250} />
+              }
               key={i}
-              handleOpen={handleOpen}
-              pictureData={item}
-              className="h-full relative"
-              onEdit={() => onEdit(index + i)}
-              handleSelectPicture={() => {
-                console.log(item);
+            >
+              <LazyCustomPicture
+                {...props}
+                handleOpen={handleOpen}
+                pictureData={item}
+                className="h-full relative"
+                onEdit={() => onEdit(index + i)}
+                handleSelectPicture={() => {
+                  console.log(item);
 
-                const pictureIndex = originalList.findIndex(
-                  (picture) => picture.id === item.id
-                );
-                // console.log(originalList[pictureIndex]);
-                handleSelectPicture(pictureIndex);
-              }}
-              handleClick={handleClick}
-              inAlbum
-            />
+                  const pictureIndex = originalList.findIndex(
+                    (picture) => picture.id === item.id
+                  );
+                  // console.log(originalList[pictureIndex]);
+                  handleSelectPicture(pictureIndex);
+                }}
+                handleClick={handleClick}
+                inAlbum
+                loading="lazy"
+              />
+            </Suspense>
           );
         })}
       </Masonry>

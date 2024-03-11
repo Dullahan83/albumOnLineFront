@@ -91,9 +91,12 @@ const CustomPicture = ({
               ? import.meta.env.VITE_BACKEND_IMAGES
               : ""
           }/${thumbUrl}`}
-          className={cn(`${classImg} backdrop-blur-xl hover:cursor-zoom-in `, {
-            "w-full aspect-video hover:cursor-default": !inAlbum,
-          })}
+          className={cn(
+            `${classImg} backdrop-blur-xl hover:cursor-zoom-in object-cover `,
+            {
+              "w-full aspect-video hover:cursor-default": !inAlbum,
+            }
+          )}
           alt={""}
           loading={loading}
           onClick={() => (inAlbum ? handleClick && handleShowPicture() : null)}

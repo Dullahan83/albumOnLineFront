@@ -1,11 +1,4 @@
-import { Skeleton } from "@mui/material";
-import {
-  ComponentPropsWithoutRef,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { ComponentPropsWithoutRef, useContext, useRef } from "react";
 import AuthContext, { Image } from "../Context/AuthContext";
 import EditIcon from "./Shared/EditIcon";
 import TrashIcon from "./Shared/TrashIcon";
@@ -27,7 +20,7 @@ type CustomPictureProps = {
   handleOpen: () => void;
 } & ComponentPropsWithoutRef<"div">;
 
-type Orientation = "portrait" | "landscape" | "";
+// type Orientation = "portrait" | "landscape" | "";
 
 const CustomPicture = ({
   pictureData,
@@ -48,26 +41,15 @@ const CustomPicture = ({
   const bgUrl = pictureData?.url?.split("/").join("/mini/");
   const thumbUrl = pictureData?.url?.split("/").join("/thumb/");
 
-  const [orientation, setOrientation] = useState<Orientation>("");
-  const [loaded, setLoaded] = useState(false);
+  // const [loaded, setLoaded] = useState(false);
 
   const flatKeys = pictureData?.keyword?.map((word) => word.word);
 
   const handleLoading = () => {
     if (imgRef.current && imgRef.current.complete) {
-      const img = imgRef.current;
-      const imgOrientation =
-        img.naturalHeight > img.naturalWidth ? "portrait" : "landscape";
-      setOrientation(imgOrientation);
       imgRef.current?.parentElement?.classList.add("loaded");
-      setLoaded(true);
     }
   };
-
-  useEffect(() => {
-    imgRef.current?.parentElement?.classList.add("loaded");
-    setLoaded(true);
-  }, [orientation]);
 
   imgRef.current?.complete &&
     imgRef.current?.parentElement?.classList.add("loaded");
@@ -84,46 +66,41 @@ const CustomPicture = ({
 
   return (
     <>
-      {!loaded ? (
+      {/* {!loaded ? (
         <Skeleton variant="rectangular" width="100%" height={450} />
-      ) : (
-        <div
-          {...props}
+      ) : ( */}
+      <div
+        {...props}
+        className={cn(
+          `${className} relative border border-transparent group  overflow-hidden`,
+          {
+            "h-auto sm:max-h-[500px]": inAlbum,
+          }
+        )}
+        style={{
+          backgroundImage: `url(${
+            import.meta.env.VITE_BACKEND_IMAGES
+          }/${bgUrl}) no-repeat`,
+        }}
+      >
+        <img
+          onLoad={handleLoading}
+          ref={imgRef}
+          src={`${
+            !pictureData?.url.includes("mockImage")
+              ? import.meta.env.VITE_BACKEND_IMAGES
+              : ""
+          }/${thumbUrl}`}
           className={cn(
-            `${className} relative border border-transparent group  overflow-hidden`,
+            `${classImg} backdrop-blur-xl hover:cursor-zoom-in object-cover `,
             {
-              "h-auto sm:max-h-[500px]": inAlbum,
-              // "row-span-1": orientation === "landscape",
-              // "row-span-2 ": orientation === "portrait",
+              "w-full aspect-video hover:cursor-default": !inAlbum,
             }
           )}
-          style={{
-            backgroundImage: `url(${
-              import.meta.env.VITE_BACKEND_IMAGES
-            }/${bgUrl}) no-repeat`,
-          }}
-        >
-          {/* {!pictureData?.url.includes("mockImage")&&<div className="w-full h-full bg-black/40 backdrop-blur-lg absolute top-0 left-0 z-10"></div>} */}
-          <img
-            onLoad={handleLoading}
-            ref={imgRef}
-            src={`${
-              !pictureData?.url.includes("mockImage")
-                ? import.meta.env.VITE_BACKEND_IMAGES
-                : ""
-            }/${thumbUrl}`}
-            className={cn(
-              `${classImg} backdrop-blur-xl hover:cursor-zoom-in `,
-              {
-                "w-full aspect-video hover:cursor-default": !inAlbum,
-              }
-            )}
-            alt={""}
-            loading={loading}
-            onClick={() =>
-              inAlbum ? handleClick && handleShowPicture() : null
-            }
-          ></img>
+          alt={""}
+          loading={loading}
+          onClick={() => (inAlbum ? handleClick && handleShowPicture() : null)}
+        ></img>
 
           {pictureData?.legend && (
             <div

@@ -1,15 +1,7 @@
-import { ComponentPropsWithoutRef } from "react";
-import Masonry from "react-masonry-css";
+import React, { ComponentPropsWithoutRef, Suspense } from "react";
 import { Image } from "../Context/AuthContext";
-import CustomPicture from "./CustomPicture";
+import PictureSqueleton from "./SuspenseComponent/PictureSqueleton";
 import { getMonth } from "./Utils/func";
-
-const breakpointColumnsObj = {
-  default: 4,
-  1100: 3,
-  700: 2,
-  500: 1,
-};
 
 type MonthContainerProps = {
   data: Image[];
@@ -24,6 +16,8 @@ type MonthContainerProps = {
   handleOpen: () => void;
   originalList: Image[];
 } & ComponentPropsWithoutRef<"div">;
+
+const LazyCustomPicture = React.lazy(() => import("./CustomPicture"));
 
 const MonthContainer = ({
   handleClick,
@@ -40,35 +34,33 @@ const MonthContainer = ({
   return (
     <div className="w-full flex flex-col ">
       <h3 className=" capitalize text-3xl self-start  w-fit mb-3">{month}</h3>
-      <Masonry
-        className="my-masonry-grid "
-        columnClassName="my-masonry-grid_column"
-        breakpointCols={breakpointColumnsObj}
-      >
+      <div className="flex flex-wrap gap-2">
         {data.map((item, i) => {
           return (
-            <CustomPicture
-              {...props}
-              key={i}
-              handleOpen={handleOpen}
-              pictureData={item}
-              className="h-full relative"
-              onEdit={() => onEdit(index + i)}
-              handleSelectPicture={() => {
-                console.log(item);
+            <Suspense fallback={<PictureSqueleton />} key={i}>
+              <LazyCustomPicture
+                {...props}
+                handleOpen={handleOpen}
+                pictureData={item}
+                className="flex-[0_1_48%] sm:flex-[0_1_32.2%] lg:flex-[0_1_24.2%] xl:flex-[0_1_16.1%] xxl:flex-[0_1_12%] aspect-square relative"
+                onEdit={() => onEdit(index + i)}
+                handleSelectPicture={() => {
+                  console.log(item);
 
-                const pictureIndex = originalList.findIndex(
-                  (picture) => picture.id === item.id
-                );
-                // console.log(originalList[pictureIndex]);
-                handleSelectPicture(pictureIndex);
-              }}
-              handleClick={handleClick}
-              inAlbum
-            />
+                  const pictureIndex = originalList.findIndex(
+                    (picture) => picture.id === item.id
+                  );
+                  // console.log(originalList[pictureIndex]);
+                  handleSelectPicture(pictureIndex);
+                }}
+                handleClick={handleClick}
+                inAlbum
+                loading="lazy"
+              />
+            </Suspense>
           );
         })}
-      </Masonry>
+      </div>
       <hr className="w-5/6 h-1 bg-black/10 backdrop-blur-lg my-10 mx-auto rounded-full " />
     </div>
   );

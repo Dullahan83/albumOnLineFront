@@ -7,7 +7,9 @@ type TimeLineProps = {
 };
 
 const TimeLine = ({ arrayYear }: TimeLineProps) => {
-  const [activeYear, setActiveYear] = useState<number>(arrayYear[0]);
+  const year = window.location.href.split("#")[1];
+  const currentYear = year ? Number(year) : arrayYear[0];
+  const [activeYear, setActiveYear] = useState<number>(currentYear);
   const startingYear = new Date().getFullYear();
   const endingYear = 1950;
 

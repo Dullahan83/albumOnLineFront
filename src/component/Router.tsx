@@ -1,13 +1,15 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-import Home from "../pages/Home";
+import { AuthProvider } from "../Context/AuthContext";
 import Album from "../pages/Album";
-import Upload from "../pages/Upload";
+import AlbumChoice from "../pages/AlbumChoice";
 import AutoLogin from "../pages/AutoLogin";
-import ProtectedRoutes from "./ProtectedRoutes";
+import Creation from "../pages/Creation";
+import Home from "../pages/Home";
+import Upload from "../pages/Upload";
 import Page404 from "./Errors/404";
 import Unauthorized from "./Errors/Unauthorized";
-import { AuthProvider } from "../Context/AuthContext";
+import ProtectedRoutes from "./ProtectedRoutes";
 const Router = () => {
   return (
     <BrowserRouter>
@@ -15,9 +17,11 @@ const Router = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route element={<ProtectedRoutes />}>
-            <Route path="/album" element={<Album />} />
+            <Route path="/album/:albumId" element={<Album />} />
             <Route path="/upload" element={<Upload />} />
           </Route>
+          <Route path="albumChoice" element={<AlbumChoice />} />
+          <Route path="/creation" element={<Creation />} />
           <Route path="/autoLogin" element={<AutoLogin />} />
           <Route path="*" element={<Page404 />} />
           <Route path="/unauthorized" element={<Unauthorized />} />

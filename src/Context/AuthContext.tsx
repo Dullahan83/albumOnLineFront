@@ -11,7 +11,7 @@ export interface Image {
     date: string;
     year: number;
   };
-  keywords: Array<{ word: string }>;
+  keyword: Array<{ word: string }>;
   legend: string;
   url: string;
   user: {
@@ -40,6 +40,10 @@ interface AuthContextType {
 
   data: Image[];
   mockupData: Image[];
+  currentAlbum: string;
+  setCurrentAlbum: React.Dispatch<React.SetStateAction<string>>;
+  albumList: Album[];
+  setAlbumList: React.Dispatch<React.SetStateAction<Album[]>>;
 }
 
 const defaultState: AuthState = {
@@ -54,7 +58,7 @@ const mockupData = [
       date: "1982-01-01T00:00:00.000Z",
       year: 2023,
     },
-    keywords: [
+    keyword: [
       { word: "landscape" },
       { word: "lake" },
       { word: "mountain" },
@@ -70,7 +74,7 @@ const mockupData = [
       date: "1996-01-01T00:00:00.000Z",
       year: 2023,
     },
-    keywords: [
+    keyword: [
       { word: "cityscape" },
       { word: "night" },
       { word: "skyscrapers" },
@@ -86,7 +90,7 @@ const mockupData = [
       date: "1927-01-01T00:00:00.000Z",
       year: 2023,
     },
-    keywords: [
+    keyword: [
       { word: "portrait" },
       { word: "fashion" },
       { word: "urban" },
@@ -102,7 +106,7 @@ const mockupData = [
       date: "2023-01-01T00:00:00.000Z",
       year: 2000,
     },
-    keywords: [
+    keyword: [
       { word: "surreal" },
       { word: "clock" },
       { word: "abstract" },
@@ -118,7 +122,7 @@ const mockupData = [
       date: "2016-01-01T00:00:00.000Z",
       year: 2006,
     },
-    keywords: [
+    keyword: [
       { word: "beach" },
       { word: "sunset" },
       { word: "hammock" },
@@ -134,7 +138,7 @@ const mockupData = [
       date: "2018-01-01T00:00:00.000Z",
       year: 1924,
     },
-    keywords: [
+    keyword: [
       { word: "abstract" },
       { word: "geometric" },
       { word: "colorful" },
@@ -150,7 +154,7 @@ const mockupData = [
       date: "2023-01-01T00:00:00.000Z",
       year: 1952,
     },
-    keywords: [
+    keyword: [
       { word: "butterfly" },
       { word: "flower" },
       { word: "close-up" },
@@ -166,7 +170,7 @@ const mockupData = [
       date: "2018-01-01T00:00:00.000Z",
       year: 1967,
     },
-    keywords: [
+    keyword: [
       { word: "sports" },
       { word: "soccer" },
       { word: "action" },
@@ -182,7 +186,7 @@ const mockupData = [
       date: "1998-01-01T00:00:00.000Z",
       year: 2000,
     },
-    keywords: [
+    keyword: [
       { word: "vintage" },
       { word: "cat" },
       { word: "elegant" },
@@ -198,7 +202,7 @@ const mockupData = [
       date: "1986-01-01T00:00:00.000Z",
       year: 1995,
     },
-    keywords: [
+    keyword: [
       { word: "winter" },
       { word: "town" },
       { word: "snow" },
@@ -217,6 +221,10 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: false,
   data: [],
   mockupData: mockupData,
+  currentAlbum: "",
+  setCurrentAlbum: () => "",
+  albumList: [],
+  setAlbumList: () => [],
 });
 
 const events = [
@@ -227,18 +235,40 @@ const events = [
   "scroll",
   "keypress",
 ];
-
+export type Album = {
+  albumId: string;
+  name: string;
+  homeUrl: string;
+};
+const getAlbumIdFromUrl = () => {
+  const path = window.location.pathname;
+  // Cette regex capture une chaîne de 36 caractères (UUID) juste après "/album/"
+  const match = path.match(
+    /\/album\/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/
+  );
+  return match ? match[1] : null;
+};
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  // Lors de la connection, je récupère l'albumId que j'attribue à un state. Je me sers de ce state pour générer le lien de la page album de façon dynamique étant donné qu'il est partagé sur toute l'application avec le context. Le fait de l'attribuer à un state me permets en même temps de le changer en cas d'appartenance à de multiples albums.
+  // Il faut donc changer la page album en dynamique avec parametre, et la requete associée
+
   const [authState, setAuthState] = useState<AuthState>(defaultState);
   const { logout } = useAuth();
   // const {pathname} = useLocation()
   const { user } = authState;
   const [isLoadings, setIsLoadings] = useState(true);
+  const [currentAlbum, setCurrentAlbum] = useState<string | null>(null);
+  const [albumList, setAlbumList] = useState<Album[]>([]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["album"],
-    queryFn: getPictures,
-    enabled: !isLoadings && user?.authorized ? true : false,
+    queryKey: ["album", currentAlbum],
+    queryFn: () => getPictures(currentAlbum),
+    enabled:
+      !isLoadings &&
+      currentAlbum !== "" &&
+      user?.authorized[currentAlbum]?.validated
+        ? true
+        : false,
     refetchInterval: 5 * 60 * 1000,
   });
 
@@ -271,12 +301,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
+    const id = getAlbumIdFromUrl();
+    setCurrentAlbum(id);
+  }, []);
+
+  useEffect(() => {
     const storedToken = localStorage.getItem("authToken");
     if (storedToken === "undefined" || storedToken === undefined) {
       localStorage.removeItem("authToken");
       return;
     }
-
+    const listAlbum = sessionStorage.getItem("albumList");
+    if (listAlbum) {
+      setAlbumList(JSON.parse(listAlbum));
+    }
     if (storedToken) {
       const decodedUser = jwtDecode<MyJwtPayload>(storedToken);
       setAuthState({
@@ -302,6 +340,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isLoading,
         data,
         mockupData,
+        currentAlbum,
+        setCurrentAlbum,
+        albumList,
+        setAlbumList,
       }}
     >
       {children}

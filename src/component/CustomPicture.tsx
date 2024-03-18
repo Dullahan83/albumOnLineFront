@@ -51,7 +51,7 @@ const CustomPicture = ({
   const [orientation, setOrientation] = useState<Orientation>("");
   const [loaded, setLoaded] = useState(false);
 
-  const flatKeys = pictureData?.keywords?.map((word) => word.word);
+  const flatKeys = pictureData?.keyword?.map((word) => word.word);
 
   const handleLoading = () => {
     if (imgRef.current && imgRef.current.complete) {
@@ -129,7 +129,10 @@ const CustomPicture = ({
             <div
               className={cn(
                 "absolute bottom-0 w-full translate-y-full text-white max-h-[70px] flex justify-center items-center  bg-black/40 p-2 backdrop-blur-lg overflow-hidden group-hover:translate-y-0 transition-transform duration-100",
-                { " text-[10px] sm:text-xs min-h-[30px]": inAlbum }
+                {
+                  " text-[10px] sm:text-xs min-h-[30px]": inAlbum,
+                  hidden: !inAlbum,
+                }
               )}
             >
               {pictureData?.legend}
@@ -141,12 +144,12 @@ const CustomPicture = ({
               {
                 " text-[10px] sm:text-xs h-[7%] min-h-[30px]": inAlbum,
                 "justify-between":
-                  authState.user?.userId === pictureData.user.id,
+                  authState.user?.userId === pictureData?.user?.id,
                 hidden: !inAlbum,
               }
             )}
           >
-            {authState.user?.userId === pictureData.user.id ? (
+            {authState.user?.userId === pictureData?.user?.id ? (
               <TrashIcon onClick={handleDeletePicture} />
             ) : null}
             {`Photo ajoutée par ${
@@ -154,7 +157,7 @@ const CustomPicture = ({
                 ? pictureData?.user?.name
                 : "Utilisateur Supprimé"
             }`}
-            {authState.user?.userId === pictureData.user.id ? (
+            {authState.user?.userId === pictureData?.user?.id ? (
               <EditIcon onClick={onEdit} />
             ) : null}
           </div>

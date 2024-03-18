@@ -1,7 +1,7 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import Header from "../Header/Header";
 import { cn } from "../Utils/func";
-import { useLocation } from "react-router-dom";
 
 const Layout = ({
   children,
@@ -18,7 +18,12 @@ const Layout = ({
         " bg-background dark:bg-background-dark text-textColor dark:text-textColor-dark transition-colors duration-100 relative z-0  min-h-screen",
         {
           "flex items-center justify-center": withoutHeader,
-          "bg-no-repeat bg-cover bg-center bg-[url(/Error404.png)]" : pathname !== "/" &&  pathname !== "/upload" &&  pathname !== "/album",
+          "bg-no-repeat bg-cover bg-center bg-[url(/Error404.png)]":
+            pathname !== "/" &&
+            pathname !== "/upload" &&
+            !pathname.includes("/album") &&
+            pathname !== "/creation" &&
+            pathname !== "/albumChoice",
           "bg-no-repeat bg-cover bg-center bg-[url(/UnauthorizedBackgroundDark.png)]  ":
             pathname === "/Unauthorized",
         }

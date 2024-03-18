@@ -8,6 +8,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { useParams } from "react-router-dom";
 import AuthContext, { Image } from "../Context/AuthContext";
 import { useFilter } from "../Hooks/useFilter";
 import usePagination from "../Hooks/usePagination";
@@ -36,7 +37,7 @@ const Album = () => {
   const [activeList, setActiveList] = useState<ActiveList | "">("");
   const [showButtonScroll, setShowButtonScroll] = useState(false);
   const periodInterval = 1;
-
+  const { albumId } = useParams();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const confirmationRef = useRef<HTMLDialogElement>(null);
@@ -57,7 +58,7 @@ const Album = () => {
       const matchesKeywords =
         filterState.keyword.length === 0 ||
         filterState.keyword.every((keyword) =>
-          item.keywords.some((k) => k.word === keyword)
+          item.keyword.some((k) => k.word === keyword)
         );
       return matchesYear && matchesKeywords;
     });
@@ -92,7 +93,7 @@ const Album = () => {
     });
     if (isAncient) {
       return (
-        <Suspense fallback={<div>chargement en cours ...</div>}>
+        <Suspense fallback={<div className="w-full"></div>}>
           <LazySectionDisplayPicture
             ancient={isAncient}
             datas={arr}
@@ -114,7 +115,7 @@ const Album = () => {
 
     return (
       <>
-        <Suspense fallback={<div>chargement en cours ...</div>}>
+        <Suspense fallback={<div className="w-full"></div>}>
           <SectionDisplayPictures
             datas={arr}
             periodStart={periodStart}
@@ -203,7 +204,7 @@ const Album = () => {
     let newKeywordList = Array.from(
       new Set(
         filteredData?.flatMap((item) =>
-          item.keywords.map((keyword) => keyword.word)
+          item.keyword.map((keyword) => keyword.word)
         )
       )
     );
@@ -233,6 +234,10 @@ const Album = () => {
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  if (!albumId) {
+    throw new Error();
+  }
 
   return (
     <>

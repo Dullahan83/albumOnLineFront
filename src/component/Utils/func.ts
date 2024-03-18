@@ -45,19 +45,24 @@ export const uploadMultiple = async (formData: FormData) => {
   }
 };
 
-export const getPictures = async () => {
+export const getPictures = async (albumId: string) => {
+  console.log(albumId, "id in fetch");
+
   const { signal } = new AbortController();
   try {
     const token = localStorage.getItem("authToken"); // Récupérer le token du localStorage
     if (!token) throw new Error("Pas de token detecté");
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/getAll`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      signal,
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/getAll/${albumId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        signal,
+      }
+    );
     const data = await response.json();
     if (!response.ok) {
       throw new Error("Échec de la récuperation des images");

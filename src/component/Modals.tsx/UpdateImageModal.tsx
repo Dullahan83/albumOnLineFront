@@ -1,26 +1,25 @@
-import React, {
-  ComponentPropsWithoutRef,
-  useState,
-  useRef,
-  useEffect,
-} from "react";
-import { TextField, Slide, Dialog, DialogContent, Button } from "@mui/material";
+import { Button, Dialog, DialogContent, Slide, TextField } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 import { TransitionProps } from "@mui/material/transitions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import dayjs, { Dayjs } from "dayjs";
+import React, {
+  ComponentPropsWithoutRef,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Image } from "../../Context/AuthContext";
 import KeywordThumbnail from "../Shared/KeywordThumbnail";
-import Datepicker from "../UploadForms/Datepicker";
-import dayjs, { Dayjs } from "dayjs";
-import { ToastType } from "../UploadForms/Single";
 import Toast from "../Toasts/Toast";
+import Datepicker from "../UploadForms/Datepicker";
+import { ToastType } from "../UploadForms/Single";
 import { updatePicture } from "../Utils/func";
 
 interface UpdateModalProps extends ComponentPropsWithoutRef<"dialog"> {
   open: boolean;
   onClose: () => void;
   pictureData: Image;
-  
 }
 
 const Transition = React.forwardRef(function Transition(
@@ -34,7 +33,7 @@ const Transition = React.forwardRef(function Transition(
 
 const UpdateModal = ({ open, onClose, pictureData }: UpdateModalProps) => {
   const formRef = useRef<HTMLFormElement>(null);
-    const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   const [keywordList, setKeywordList] = useState<string[]>([]);
   const [date, setDate] = useState<Dayjs | null>(null);
   const [legende, setLegende] = useState("");
@@ -42,11 +41,14 @@ const UpdateModal = ({ open, onClose, pictureData }: UpdateModalProps) => {
   const [showToast, setShowToast] = useState(false);
   const [toastType, setToastType] = useState<ToastType>("success");
 
-    const updateMutation = useMutation({mutationFn: updatePicture, onSuccess: () => {
-        handletoast("success", "Modifiée avec succès")
-        onClose()
-        queryClient.invalidateQueries({queryKey: ["album"]})
-    }})
+  const updateMutation = useMutation({
+    mutationFn: updatePicture,
+    onSuccess: () => {
+      handletoast("success", "Modifiée avec succès");
+      onClose();
+      queryClient.invalidateQueries({ queryKey: ["album"] });
+    },
+  });
 
   const handleClose = () => {
     onClose();
@@ -86,24 +88,29 @@ const UpdateModal = ({ open, onClose, pictureData }: UpdateModalProps) => {
       return;
     }
     const dateString = date?.format("YYYY-MM-DD");
-    const imageId = pictureData.id
-   
-    const body = {imageId, keywords: JSON.stringify(keywordList), legend: legende, date: dateString}
-    handletoast("info", "Envoi des modifications en cours");
-    updateMutation.mutate(body)
+    const imageId = pictureData.id;
 
+    const body = {
+      imageId,
+      keywords: JSON.stringify(keywordList),
+      legend: legende,
+      date: dateString,
+    };
+    handletoast("info", "Envoi des modifications en cours");
+    updateMutation.mutate(body);
   };
 
   useEffect(() => {
-    if(pictureData){
-    const initialKeywordList = pictureData?.keywords?.map(
-      (keyword) => keyword.word
-    );
-    setKeywordList(initialKeywordList);
-    setLegende(pictureData.legend);
-    const dateString = new Date(pictureData.date.date).toISOString()
-    const dayjsDate = dayjs(dateString)
-    setDate(dayjsDate)}
+    if (pictureData) {
+      const initialKeywordList = pictureData?.keyword?.map(
+        (keyword) => keyword.word
+      );
+      setKeywordList(initialKeywordList);
+      setLegende(pictureData.legend);
+      const dateString = new Date(pictureData.date.date).toISOString();
+      const dayjsDate = dayjs(dateString);
+      setDate(dayjsDate);
+    }
   }, [pictureData]);
 
   return (
@@ -183,13 +190,21 @@ const UpdateModal = ({ open, onClose, pictureData }: UpdateModalProps) => {
             variant="contained"
             color="secondary"
           >
-            {updateMutation.isPending ? <CircularProgress size={25} color="inherit" />: "Mettre à jour" }
+            {updateMutation.isPending ? (
+              <CircularProgress size={25} color="inherit" />
+            ) : (
+              "Mettre à jour"
+            )}
           </Button>
         </form>
       </DialogContent>
-      <Toast open={showToast} setOpen={setShowToast} content={toastMessage} type={toastType} />
+      <Toast
+        open={showToast}
+        setOpen={setShowToast}
+        content={toastMessage}
+        type={toastType}
+      />
     </Dialog>
-    
   );
 };
 export default UpdateModal;

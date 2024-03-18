@@ -264,6 +264,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     queryKey: ["album", currentAlbum],
     queryFn: () => getPictures(currentAlbum),
     enabled:
+      user &&
       !isLoadings &&
       currentAlbum !== "" &&
       user?.authorized[currentAlbum]?.validated

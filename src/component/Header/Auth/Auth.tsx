@@ -1,3 +1,5 @@
+import LoginIcon from "@mui/icons-material/Login";
+import LogoutIcon from "@mui/icons-material/Logout";
 import React, { useContext, useEffect } from "react";
 import AuthContext from "../../../Context/AuthContext";
 import { useAuth } from "../../../Hooks/useAuth";
@@ -30,10 +32,12 @@ const Auth = () => {
     <>
       {!authState.user ? (
         <button className="" onClick={handleModalOpening}>
-          Connexion
+          <LoginIcon />
         </button>
       ) : (
-        <button onClick={handleLogOut}>Déconnexion</button>
+        <button onClick={handleLogOut}>
+          <LogoutIcon />
+        </button>
       )}
       <AuthModal
         open={isModalopen}

@@ -51,7 +51,7 @@ export const getPictures = async (albumId: string) => {
   const { signal } = new AbortController();
   try {
     const token = localStorage.getItem("authToken"); // Récupérer le token du localStorage
-    if (!token) throw new Error("Pas de token detecté");
+    if (!token) return;
     const response = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}/getAll/${albumId}`,
       {

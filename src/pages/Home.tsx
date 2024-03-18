@@ -19,9 +19,9 @@ const Home = () => {
       <Layout>
         <div
           className={cn(
-            "flex flex-col items-center h-full w-full flex-[1_1_100%]",
+            "flex flex-col items-center gap-y-20 h-full w-full flex-[1_1_100%] min-h-[calc(100vh-73px)]",
             {
-              "py-20 gap-y-20 min-h-[calc(100vh-73px)] pb-16": !authState.user,
+              "py-20   pb-16": !authState.user,
               "py-0 gap-y-0 justify-evenly":
                 auth === import.meta.env.VITE_CREATION_AUTH,
             }

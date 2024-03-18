@@ -59,7 +59,7 @@ export const useAuth = () => {
       if (data.albumArray.length > 1) {
         sessionStorage.setItem("albumList", JSON.stringify(data.albumArray));
         setAlbumList(data.albumArray);
-        navigate("/albumChoice");
+        navigate("/?albumChoice=true");
         return;
       }
       setCurrentAlbum(data.albumArray[0].albumId);
@@ -93,6 +93,7 @@ export const useAuth = () => {
     sessionStorage.removeItem("albumList");
     setAuthState({ token: null, user: undefined });
     setAlbumList([]);
+    setCurrentAlbum(null);
     navigate("/");
     // window.location.pathname = "/";
     queryClient.invalidateQueries({ queryKey: ["album"] });

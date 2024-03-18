@@ -5,7 +5,6 @@ import AuthContext from "../../Context/AuthContext";
 const Navbar = () => {
   const { authState, currentAlbum } = useContext(AuthContext);
   const { user } = authState;
-  console.log(user);
   const isAuthorized = user?.authorized[currentAlbum]?.validated;
   return (
     <ul className="flex gap-10 justify-self-center translate-x-1/4">

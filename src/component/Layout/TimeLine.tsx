@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { cn } from "../Utils/func";
 import TimeGap from "./TimeGap";
 
@@ -7,11 +7,21 @@ type TimeLineProps = {
 };
 
 const TimeLine = ({ arrayYear }: TimeLineProps) => {
-  const year = window.location.href.split("#")[1];
-  const currentYear = year ? Number(year) : arrayYear[0];
-  const [activeYear, setActiveYear] = useState<number>(currentYear);
+  // const year = window.location.href.split("#")[1];
+  // const currentYear = year ? Number(year) : arrayYear[0];
+  const [activeYear, setActiveYear] = useState<number>(0);
   const startingYear = new Date().getFullYear();
   const endingYear = 1950;
+  useEffect(() => {
+    const year = window.location.href.split("#")[1];
+    const currentYear = year ? Number(year) : arrayYear[0];
+    setActiveYear(currentYear);
+  }, []);
+
+  useEffect(() => {
+    const section = document.getElementById(String(activeYear));
+    section?.scrollIntoView();
+  }, [activeYear]);
 
   return arrayYear?.length ? (
     <div className="sticky h-[87.5vh] top-[10vh] right-full -translate-x-14 lg:-translate-x-20 w-fit flex-col z-50 hidden sm:flex">

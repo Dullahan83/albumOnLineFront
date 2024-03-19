@@ -27,6 +27,7 @@ const FilterGroup: React.FC<FilterProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
+
   const [isTyping, setIsTyping] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 

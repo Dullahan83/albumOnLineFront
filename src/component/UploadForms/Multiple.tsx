@@ -11,12 +11,11 @@ import DatePicker from "./Datepicker";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dayjs, { Dayjs } from "dayjs";
+import useToast from "../../Hooks/useToast";
 import KeywordThumbnail from "../Shared/KeywordThumbnail";
-import Toast from "../Toasts/Toast";
 import { uploadMultiple } from "../Utils/func";
-import { ToastType } from "./Single";
 
-const VisuallyHiddenInput = styled("input")({
+export const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
   clipPath: "inset(50%)",
   height: 1,
@@ -44,17 +43,15 @@ type Preview = string | ArrayBuffer | null | undefined;
 
 const Multiple = () => {
   const queryClient = useQueryClient();
+  const multipleFormRef = React.useRef<HTMLFormElement>(null);
+  const { handleToast, Toast } = useToast();
 
   const singleRef = React.useRef<HTMLInputElement>(null);
-  const multipleFormRef = React.useRef<HTMLFormElement>(null);
-
   const [images, setImages] = useState<Preview[]>([]);
   const [date, setDate] = useState<Dayjs | null>(dayjs(new Date()));
   const [keywordList, setKeywordList] = useState<string[]>([]);
-  const [toastMessage, setToastMessage] = useState("");
-  const [showToast, setShowToast] = useState(false);
-  const [toastType, setToastType] = useState<ToastType>("success");
   const [showPreview, setShowPreview] = useState(false);
+
   const uploadFileMutation = useMutation({
     mutationFn: uploadMultiple,
     onSuccess: () => {
@@ -62,11 +59,11 @@ const Multiple = () => {
       setImages([]);
       setDate(null);
       multipleFormRef.current?.reset();
-      handletoast("success", "Photo ajoutée avec succès");
+      handleToast("success", "Photo ajoutée avec succès");
       setKeywordList([]);
     },
     onError: () => {
-      handletoast(
+      handleToast(
         "error",
         "Oups! Il y a eu une erreur lors de l'ajout en base de donnée"
       );
@@ -83,26 +80,22 @@ const Multiple = () => {
       });
     }
   };
-  const handletoast = (type: ToastType, content: string) => {
-    setShowToast(true);
-    setToastMessage(content);
-    setToastType(type);
-  };
+
   const handleSubmit = () => {
     multipleFormRef.current.scrollIntoView();
 
     const formData = new FormData();
     if (!date) {
-      handletoast("warning", "Vous avez oublié de remplir la date");
+      handleToast("warning", "Vous avez oublié de remplir la date");
       return;
     }
     if (!keywordList.length) {
-      handletoast("warning", "Il faut ajouter au moins un mot clé");
+      handleToast("warning", "Il faut ajouter au moins un mot clé");
       return;
     }
     const dateString = date?.format("YYYY-MM-DD");
     if (singleRef.current?.files?.length === 0) {
-      handletoast("warning", "Il faut ajouter une photo");
+      handleToast("warning", "Il faut ajouter une photo");
       return;
     }
     if (singleRef.current?.files) {
@@ -115,7 +108,7 @@ const Multiple = () => {
           formData.append("images", img);
         });
         uploadFileMutation.mutate(formData);
-        handletoast("info", "Envoi des photos en cours");
+        handleToast("info", "Envoi des photos en cours");
       }
     }
   };
@@ -274,12 +267,7 @@ const Multiple = () => {
           )}
         </Button>
       </form>
-      <Toast
-        open={showToast}
-        setOpen={setShowToast}
-        content={toastMessage}
-        type={toastType}
-      />
+      {Toast}
     </div>
   );
 };

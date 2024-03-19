@@ -8,7 +8,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useParams } from "react-router-dom";
 import AuthContext, { Image } from "../Context/AuthContext";
 import { useFilter } from "../Hooks/useFilter";
 import usePagination from "../Hooks/usePagination";
@@ -37,7 +36,7 @@ const Album = () => {
   const [activeList, setActiveList] = useState<ActiveList | "">("");
   const [showButtonScroll, setShowButtonScroll] = useState(false);
   const periodInterval = 1;
-  const { albumId } = useParams();
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const confirmationRef = useRef<HTMLDialogElement>(null);
@@ -93,7 +92,7 @@ const Album = () => {
     });
     if (isAncient) {
       return (
-        <Suspense fallback={<div className="w-full"></div>}>
+        <Suspense fallback={<div>chargement en cours ...</div>}>
           <LazySectionDisplayPicture
             ancient={isAncient}
             datas={arr}
@@ -115,7 +114,7 @@ const Album = () => {
 
     return (
       <>
-        <Suspense fallback={<div className="w-full"></div>}>
+        <Suspense fallback={<div>chargement en cours ...</div>}>
           <SectionDisplayPictures
             datas={arr}
             periodStart={periodStart}
@@ -234,10 +233,6 @@ const Album = () => {
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  if (!albumId) {
-    throw new Error();
-  }
 
   return (
     <>

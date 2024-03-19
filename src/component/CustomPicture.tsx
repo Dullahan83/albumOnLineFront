@@ -102,45 +102,44 @@ const CustomPicture = ({
           onClick={() => (inAlbum ? handleClick && handleShowPicture() : null)}
         ></img>
 
-          {pictureData?.legend && (
-            <div
-              className={cn(
-                "absolute bottom-0 w-full translate-y-full text-white max-h-[70px] flex justify-center items-center  bg-black/40 p-2 backdrop-blur-lg overflow-hidden group-hover:translate-y-0 transition-transform duration-100",
-                {
-                  " text-[10px] sm:text-xs min-h-[30px]": inAlbum,
-                  hidden: !inAlbum,
-                }
-              )}
-            >
-              {pictureData?.legend}
-            </div>
-          )}
+        {pictureData?.legend && (
           <div
             className={cn(
-              "absolute top-0 w-full z-0 text-white max-h-[70px] -translate-y-full flex justify-center items-center  bg-black/40 p-2 backdrop-blur-lg overflow-hidden group-hover:translate-y-0 transition-transform duration-100",
+              "absolute bottom-0 w-full translate-y-full text-white max-h-[70px] flex justify-center items-center  bg-black/40 p-2 backdrop-blur-lg overflow-hidden group-hover:translate-y-0 transition-transform duration-100",
               {
-                " text-[10px] sm:text-xs h-[7%] min-h-[30px]": inAlbum,
-                "justify-between":
-                  authState.user?.userId === pictureData?.user?.id,
+                " text-[10px] sm:text-xs min-h-[30px]": inAlbum,
                 hidden: !inAlbum,
               }
             )}
           >
-            {authState.user?.userId === pictureData?.user?.id ? (
-              <TrashIcon onClick={handleDeletePicture} />
-            ) : null}
-            {`Photo ajoutée par ${
-              pictureData?.user?.name
-                ? pictureData?.user?.name
-                : "Utilisateur Supprimé"
-            }`}
-            {authState.user?.userId === pictureData?.user?.id ? (
-              <EditIcon onClick={onEdit} />
-            ) : null}
+            {pictureData?.legend}
           </div>
-          <title>{flatKeys?.join(", ")}</title>
+        )}
+        <div
+          className={cn(
+            "absolute top-0 w-full z-0 text-white max-h-[70px] -translate-y-full flex justify-center items-center  bg-black/40 p-2 backdrop-blur-lg overflow-hidden group-hover:translate-y-0 transition-transform duration-100",
+            {
+              " text-[10px] sm:text-xs h-[7%] min-h-[30px]": inAlbum,
+              "justify-between":
+                authState.user?.userId === pictureData?.user?.id,
+              hidden: !inAlbum,
+            }
+          )}
+        >
+          {authState.user?.userId === pictureData?.user?.id ? (
+            <TrashIcon onClick={handleDeletePicture} />
+          ) : null}
+          {`Photo ajoutée par ${
+            pictureData?.user?.name
+              ? pictureData?.user?.name
+              : "Utilisateur Supprimé"
+          }`}
+          {authState.user?.userId === pictureData?.user?.id ? (
+            <EditIcon onClick={onEdit} />
+          ) : null}
         </div>
-      )}
+        <title>{flatKeys?.join(", ")}</title>
+      </div>
     </>
   );
 };

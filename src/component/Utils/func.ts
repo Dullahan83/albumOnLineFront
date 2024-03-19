@@ -5,26 +5,6 @@ export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs));
 };
 
-export const uploadSingle = async (formData: FormData) => {
-  try {
-    const token = localStorage.getItem("authToken"); // Récupérer le token du localStorage
-    if (!token) throw new Error("Pas de token detecté");
-    const response = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/createOne`,
-      {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      }
-    );
-    if (!response.ok) {
-      throw new Error('Échec de l"envoi');
-    }
-  } catch (error) {
-    console.error('Erreur lors de l"envoi:', error);
-  }
-};
-
 export const uploadMultiple = async (formData: FormData) => {
   try {
     const token = localStorage.getItem("authToken"); // Récupérer le token du localStorage
@@ -122,4 +102,21 @@ export const updatePicture = async (body: {
 
 export const getMonth = (date: Date) => {
   return Intl.DateTimeFormat("fr-FR", { month: "long" }).format(date);
+};
+
+export const createAlbum = async (formData: FormData) => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/album/create`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Échec de la création de l'album");
+    }
+  } catch (error) {
+    console.error("Erreur lors de la création:", error);
+  }
 };

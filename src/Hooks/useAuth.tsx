@@ -22,6 +22,7 @@ type signupQueryProps = {
 export interface MyJwtPayload extends JwtPayload {
   userId: number;
   authorized: boolean;
+  albumId?: string;
 }
 export const useAuth = () => {
   const { authState, setAuthState, setAlbumList, setCurrentAlbum } =
@@ -41,6 +42,8 @@ export const useAuth = () => {
   }, [token, setAuthState]);
 
   const login = useCallback(async (body: loginQueryProps) => {
+    console.log("je suis bien appelée");
+
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/auth/login`,
@@ -116,10 +119,16 @@ export const useAuth = () => {
         localStorage.setItem("authToken", data.token);
         const decodedUser = jwtDecode<MyJwtPayload>(data.token);
         const { userId, authorized } = decodedUser;
+        if (data.albumArray.length > 1) {
+          sessionStorage.setItem("albumList", JSON.stringify(data.albumArray));
+          setAlbumList(data.albumArray);
+        }
+        setCurrentAlbum(decodedUser.albumId);
         setAuthState({
           token,
           user: { userId: userId, authorized: authorized },
         });
+        navigate("/");
       }
     } catch (error: unknown) {
       console.error(error);

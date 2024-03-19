@@ -44,7 +44,7 @@ const UpdateModal = ({ open, onClose, pictureData }: UpdateModalProps) => {
   const updateMutation = useMutation({
     mutationFn: updatePicture,
     onSuccess: () => {
-      handletoast("success", "Modifiée avec succès");
+      handleToast("success", "Modifiée avec succès");
       onClose();
       queryClient.invalidateQueries({ queryKey: ["album"] });
     },
@@ -65,7 +65,7 @@ const UpdateModal = ({ open, onClose, pictureData }: UpdateModalProps) => {
       formRef.current.keywords.value = "";
     }
   };
-  const handletoast = (type: ToastType, content: string) => {
+  const handleToast = (type: ToastType, content: string) => {
     setShowToast(true);
     setToastMessage(content);
     setToastType(type);
@@ -80,11 +80,11 @@ const UpdateModal = ({ open, onClose, pictureData }: UpdateModalProps) => {
 
   const handleSubmit = () => {
     if (!date) {
-      handletoast("warning", "Vous avez oublié de remplir la date");
+      handleToast("warning", "Vous avez oublié de remplir la date");
       return;
     }
     if (!keywordList.length) {
-      handletoast("warning", "Il faut ajouter au moins un mot clé");
+      handleToast("warning", "Il faut ajouter au moins un mot clé");
       return;
     }
     const dateString = date?.format("YYYY-MM-DD");
@@ -96,7 +96,7 @@ const UpdateModal = ({ open, onClose, pictureData }: UpdateModalProps) => {
       legend: legende,
       date: dateString,
     };
-    handletoast("info", "Envoi des modifications en cours");
+    handleToast("info", "Envoi des modifications en cours");
     updateMutation.mutate(body);
   };
 

@@ -42,8 +42,6 @@ export const useAuth = () => {
   }, [token, setAuthState]);
 
   const login = useCallback(async (body: loginQueryProps) => {
-    console.log("je suis bien appelée");
-
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/auth/login`,

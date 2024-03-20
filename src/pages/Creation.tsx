@@ -27,7 +27,6 @@ const Creation = () => {
         email: formRef.current?.creationEmail.value,
         password: formRef.current?.creationPassword.value,
       };
-      console.log(body);
 
       handleToast("success", "New Album Successfully Created");
       login(body);
@@ -50,8 +49,6 @@ const Creation = () => {
       creationPasswordConfirm,
     } = formRef.current;
     if (creationPasswordConfirm.value !== creationPassword.value) {
-      console.log(creationPassword, creationPasswordConfirm);
-
       setPasswordError(true);
       return;
     }

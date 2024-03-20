@@ -164,7 +164,6 @@ const Album = () => {
   };
   const handleOpenConfirmModal = () => {
     confirmationRef.current?.showModal();
-    console.log("on est dedans");
   };
 
   const handleCloseConfirmModal = () => {
@@ -184,7 +183,6 @@ const Album = () => {
     } else setSelected(index);
   };
   const handleSelectPicture2 = (index: number) => {
-    console.log(index);
     setSelected(index);
   };
   function arraysEqual(arr1: Filter[], arr2: Filter[]) {

@@ -6,11 +6,12 @@ import ImageListItem from "@mui/material/ImageListItem";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import DatePicker from "./Datepicker";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dayjs, { Dayjs } from "dayjs";
+import AuthContext from "../../Context/AuthContext";
 import useToast from "../../Hooks/useToast";
 import KeywordThumbnail from "../Shared/KeywordThumbnail";
 import { uploadMultiple } from "../Utils/func";
@@ -42,15 +43,18 @@ const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
 type Preview = string | ArrayBuffer | null | undefined;
 
 const Multiple = () => {
-  const queryClient = useQueryClient();
-  const multipleFormRef = React.useRef<HTMLFormElement>(null);
-  const { handleToast, Toast } = useToast();
+  const { currentAlbum } = useContext(AuthContext);
 
-  const singleRef = React.useRef<HTMLInputElement>(null);
+  const { handleToast, Toast } = useToast();
+  const queryClient = useQueryClient();
+
   const [images, setImages] = useState<Preview[]>([]);
   const [date, setDate] = useState<Dayjs | null>(dayjs(new Date()));
   const [keywordList, setKeywordList] = useState<string[]>([]);
   const [showPreview, setShowPreview] = useState(false);
+
+  const multipleFormRef = React.useRef<HTMLFormElement>(null);
+  const singleRef = React.useRef<HTMLInputElement>(null);
 
   const uploadFileMutation = useMutation({
     mutationFn: uploadMultiple,
@@ -104,6 +108,7 @@ const Multiple = () => {
         formData.append("keywords", JSON.stringify(keywordList));
         formData.append("legend", legende.value);
         formData.append("date", dateString as string);
+        formData.append("albumId", currentAlbum);
         Array.from(singleRef.current.files).forEach((img) => {
           formData.append("images", img);
         });

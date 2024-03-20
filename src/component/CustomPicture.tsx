@@ -36,11 +36,18 @@ const CustomPicture = ({
   ...props
 }: CustomPictureProps) => {
   // const { url, legend, keywords } = pictureData;
+  // console.log(pictureData);
+
   const { authState } = useContext(AuthContext);
   const imgRef = useRef<HTMLImageElement | null>(null);
-  const bgUrl = pictureData?.url?.split("/").join("/mini/");
-  const thumbUrl = pictureData?.url?.split("/").join("/thumb/");
 
+  const bgUrlArray = pictureData?.url?.split("/");
+  bgUrlArray?.splice(2, 0, "mini");
+  const bgUrl = bgUrlArray?.join("/");
+
+  const thumbUrlArray = pictureData?.url?.split("/");
+  thumbUrlArray?.splice(2, 0, "thumb");
+  const thumbUrl = inAlbum ? thumbUrlArray?.join("/") : pictureData?.url;
   // const [loaded, setLoaded] = useState(false);
 
   const flatKeys = pictureData?.keyword?.map((word) => word.word);

@@ -6,7 +6,7 @@ import Layout from "../component/Layout/Layout";
 const AlbumChoice = () => {
   const { albumList, setCurrentAlbum } = useContext(AuthContext);
   const navigate = useNavigate();
-  console.log(albumList);
+
   const handleClick = (albumId: string) => {
     setCurrentAlbum(albumId);
     navigate("/");

@@ -25,7 +25,6 @@ const MonthContainer = ({
   handleSelectPicture,
   data,
   onEdit,
-  index,
   originalList,
   ...props
 }: MonthContainerProps) => {
@@ -43,10 +42,13 @@ const MonthContainer = ({
                 handleOpen={handleOpen}
                 pictureData={item}
                 className="flex-[0_1_48%] sm:flex-[0_1_32.2%] lg:flex-[0_1_24.2%] xl:flex-[0_1_16.1%] xxl:flex-[0_1_12%] aspect-square relative"
-                onEdit={() => onEdit(index + i)}
+                onEdit={() => {
+                  const pictureIndex = originalList.findIndex(
+                    (picture) => picture.id === item.id
+                  );
+                  onEdit(pictureIndex);
+                }}
                 handleSelectPicture={() => {
-                  console.log(item);
-
                   const pictureIndex = originalList.findIndex(
                     (picture) => picture.id === item.id
                   );

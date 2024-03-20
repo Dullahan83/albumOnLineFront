@@ -12,6 +12,7 @@ const TimeLine = ({ arrayYear }: TimeLineProps) => {
   const [activeYear, setActiveYear] = useState<number>(0);
   const startingYear = new Date().getFullYear();
   const endingYear = 1950;
+
   useEffect(() => {
     const year = window.location.href.split("#")[1];
     const currentYear = year ? Number(year) : arrayYear[0];

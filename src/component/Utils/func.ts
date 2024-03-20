@@ -26,7 +26,7 @@ export const uploadMultiple = async (formData: FormData) => {
 };
 
 export const getPictures = async (albumId: string) => {
-  console.log(albumId, "id in fetch");
+  // console.log(albumId, "id in fetch");
 
   const { signal } = new AbortController();
   try {

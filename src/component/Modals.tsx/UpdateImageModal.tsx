@@ -10,10 +10,9 @@ import React, {
   useState,
 } from "react";
 import { Image } from "../../Context/AuthContext";
+import useToast from "../../Hooks/useToast";
 import KeywordThumbnail from "../Shared/KeywordThumbnail";
-import Toast from "../Toasts/Toast";
 import Datepicker from "../UploadForms/Datepicker";
-import { ToastType } from "../UploadForms/Single";
 import { updatePicture } from "../Utils/func";
 
 interface UpdateModalProps extends ComponentPropsWithoutRef<"dialog"> {
@@ -37,9 +36,8 @@ const UpdateModal = ({ open, onClose, pictureData }: UpdateModalProps) => {
   const [keywordList, setKeywordList] = useState<string[]>([]);
   const [date, setDate] = useState<Dayjs | null>(null);
   const [legende, setLegende] = useState("");
-  const [toastMessage, setToastMessage] = useState("");
-  const [showToast, setShowToast] = useState(false);
-  const [toastType, setToastType] = useState<ToastType>("success");
+
+  const { handleToast, Toast } = useToast();
 
   const updateMutation = useMutation({
     mutationFn: updatePicture,
@@ -64,11 +62,6 @@ const UpdateModal = ({ open, onClose, pictureData }: UpdateModalProps) => {
       setKeywordList(Array.from(newList));
       formRef.current.keywords.value = "";
     }
-  };
-  const handleToast = (type: ToastType, content: string) => {
-    setShowToast(true);
-    setToastMessage(content);
-    setToastType(type);
   };
 
   const handleRemoveKeyword = (keyword: string) => {
@@ -198,12 +191,7 @@ const UpdateModal = ({ open, onClose, pictureData }: UpdateModalProps) => {
           </Button>
         </form>
       </DialogContent>
-      <Toast
-        open={showToast}
-        setOpen={setShowToast}
-        content={toastMessage}
-        type={toastType}
-      />
+      {Toast}
     </Dialog>
   );
 };

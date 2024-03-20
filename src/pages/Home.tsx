@@ -11,8 +11,6 @@ const Home = () => {
   const { getParams } = useOptionalParams();
   const currAlbum = albumList.filter((album) => album.albumId === currentAlbum);
   const auth = getParams("auth");
-  // console.log(uuid());
-  console.log(currAlbum);
 
   return (
     <>
@@ -35,12 +33,13 @@ const Home = () => {
 
           {authState.user && data ? (
             <div className="h-[500px] aspect-[0.764]   mt-10 xxl:w-2/5">
-              <CustomPicture
-                pictureData={data[0]}
-                className="blurred-img h-full relative w-full"
-                onEdit={() => null}
-                handleOpen={() => null}
-              />
+              <img
+                src={`${import.meta.env.VITE_BACKEND_IMAGES}/${
+                  currAlbum[0].homeUrl
+                }`}
+                alt="choosen home picture"
+                className="w-full"
+              ></img>
             </div>
           ) : (
             <>

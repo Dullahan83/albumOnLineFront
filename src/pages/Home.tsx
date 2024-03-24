@@ -35,7 +35,7 @@ const Home = () => {
             <div className="h-[500px] aspect-[0.764]   mt-10 xxl:w-2/5">
               <img
                 src={`${import.meta.env.VITE_BACKEND_IMAGES}/${
-                  currAlbum[0].homeUrl
+                  currAlbum[0]?.homeUrl
                 }`}
                 alt="choosen home picture"
                 className="w-full"

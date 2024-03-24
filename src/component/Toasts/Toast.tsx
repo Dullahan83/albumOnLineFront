@@ -1,7 +1,7 @@
-import * as React from "react";
-import Stack from "@mui/material/Stack";
-import Snackbar from "@mui/material/Snackbar";
 import MuiAlert, { AlertProps } from "@mui/material/Alert";
+import Snackbar from "@mui/material/Snackbar";
+import Stack from "@mui/material/Stack";
+import * as React from "react";
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
   props,
@@ -12,8 +12,8 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 interface ISnackBar {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  content: string
-  type?: "success" | "error" | "warning" | "info"
+  content: string;
+  type?: "success" | "error" | "warning" | "info";
 }
 export default function Toast({
   open,
@@ -34,9 +34,19 @@ export default function Toast({
 
   return (
     <Stack spacing={2} sx={{ width: "100%" }}>
-      <Snackbar open={open} autoHideDuration={4000} onClose={handleClose} anchorOrigin={{ vertical:"top", horizontal: "right" }}>
-        <Alert onClose={handleClose} severity={type} sx={{ width: "100%" }}>
-         {content}
+      <Snackbar
+        open={open}
+        autoHideDuration={4000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleClose}
+          severity={type}
+          sx={{ width: "100%" }}
+          className=" whitespace-pre-line"
+        >
+          {content}
         </Alert>
       </Snackbar>
     </Stack>

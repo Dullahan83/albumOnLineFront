@@ -57,9 +57,9 @@ export const useAuth = () => {
       }
       setToken(data.token);
       localStorage.setItem("authToken", data.token);
+      setAlbumList(data.albumArray);
       if (data.albumArray.length > 1) {
         sessionStorage.setItem("albumList", JSON.stringify(data.albumArray));
-        setAlbumList(data.albumArray);
         navigate("/?albumChoice=true");
         return;
       }

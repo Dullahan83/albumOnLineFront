@@ -93,10 +93,10 @@ const FilterGroup: React.FC<FilterProps> = ({
       {isOpen && (
         <ul
           className={cn(
-            " w-full hidden absolute z-50 bg-inherit p-2 pt-4 -mt-1 gap-y-2 max-h-[250px] overflow-y-scroll rounded-b-lg  ",
+            " w-[calc(100%+4px)] hidden absolute -ml-0.5 z-50 bg-inherit p-2 pt-4 -mt-1 gap-y-2 max-h-[250px] overflow-y-scroll rounded-b-lg  ",
             {
               "grid-cols-1 grid": isTyping,
-              " gap-x-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  grid shadow-[0_4px_3px_0_#808080]":
+              " gap-x-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  grid border-[2px] border-[#c7c7c7b5] border-t-0":
                 isOpen,
             }
           )}

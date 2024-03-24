@@ -1,30 +1,30 @@
-import React, { useContext,  useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import React, { useContext, useState } from "react";
+import AuthContext, { Image } from "../../Context/AuthContext";
 import ArrowIconLeft from "../Shared/ArrowIconLeft";
 import ArrowIconRight from "../Shared/ArrowIconRight";
-import CarouselPicture from "./CarouselPicture";
-import { cn, deletePicture } from "../Utils/func";
-import AuthContext, { Image } from "../../Context/AuthContext";
 import TrashIcon from "../Shared/TrashIcon";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { cn, deletePicture } from "../Utils/func";
+import CarouselPicture from "./CarouselPicture";
 
 type CarouselProps = {
   imgArray: Image[];
   index: number;
-  setIndex: (val:number) => void
+  setIndex: (val: number) => void;
   onClose: () => void;
 };
 
-const Carousel = ({ imgArray, index, setIndex}: CarouselProps) => {
-  const { authState } = useContext(AuthContext);
+const Carousel = ({ imgArray, index, setIndex }: CarouselProps) => {
+  const { authState, currentAlbum } = useContext(AuthContext);
   const [startPos, setStartPos] = useState(0);
-   const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
-   const deletePictureMutation = useMutation({
-      mutationFn: deletePicture,
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["album"] });
-      },
-    });
+  const deletePictureMutation = useMutation({
+    mutationFn: deletePicture,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["album"] });
+    },
+  });
 
   const images = imgArray;
 
@@ -50,24 +50,25 @@ const Carousel = ({ imgArray, index, setIndex}: CarouselProps) => {
     }
   };
 
-  
-
   const handleDeletePicture = () => {
-   
-    if( confirm("Êtes vous sûr(e)") === true){
-      deletePictureMutation.mutate(imgArray[index].id)
-    }else console.log("pas ok")
-  }
-  
+    if (confirm("Êtes vous sûr(e)") === true) {
+      deletePictureMutation.mutate({
+        id: imgArray[index].id,
+        albumId: currentAlbum,
+      });
+    } else console.log("pas ok");
+  };
 
   return (
     <div className="w-full h-full flex self-center justify-center text-white overflow-hidden relative  group/parent ">
-      {imgArray && authState.user?.userId === imgArray[index]?.user?.id && <TrashIcon
+      {imgArray && authState.user?.userId === imgArray[index]?.user?.id && (
+        <TrashIcon
           className="absolute top-4 left-4"
           size="40px"
           onClick={handleDeletePicture}
-        />}
-      
+        />
+      )}
+
       {images?.length > 0 && index > 0 ? (
         <ArrowIconLeft
           onClick={handlePreviousImage}

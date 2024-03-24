@@ -5,11 +5,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import dayjs, { Dayjs } from "dayjs";
 import React, {
   ComponentPropsWithoutRef,
+  useContext,
   useEffect,
   useRef,
   useState,
 } from "react";
-import { Image } from "../../Context/AuthContext";
+import AuthContext, { Image } from "../../Context/AuthContext";
 import useToast from "../../Hooks/useToast";
 import KeywordThumbnail from "../Shared/KeywordThumbnail";
 import Datepicker from "../UploadForms/Datepicker";
@@ -31,6 +32,7 @@ const Transition = React.forwardRef(function Transition(
 });
 
 const UpdateModal = ({ open, onClose, pictureData }: UpdateModalProps) => {
+  const { currentAlbum } = useContext(AuthContext);
   const formRef = useRef<HTMLFormElement>(null);
   const queryClient = useQueryClient();
   const [keywordList, setKeywordList] = useState<string[]>([]);
@@ -90,7 +92,7 @@ const UpdateModal = ({ open, onClose, pictureData }: UpdateModalProps) => {
       date: dateString,
     };
     handleToast("info", "Envoi des modifications en cours");
-    updateMutation.mutate(body);
+    updateMutation.mutate({ albumId: currentAlbum, body });
   };
 
   useEffect(() => {

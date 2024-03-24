@@ -112,7 +112,7 @@ const Multiple = () => {
         Array.from(singleRef.current.files).forEach((img) => {
           formData.append("images", img);
         });
-        uploadFileMutation.mutate(formData);
+        uploadFileMutation.mutate({ formData, param: currentAlbum });
         handleToast("info", "Envoi des photos en cours");
       }
     }
@@ -203,8 +203,8 @@ const Multiple = () => {
                   </Typography>
                   <em>
                     {"Noter les noms des"}
-                    <b>{" personne"}</b> présentes sur la photo,le
-                    <b>{" lieu"}</b>, ou bien encore l' <b>{" évènement"}</b> ou
+                    <b>{" personnes"}</b> présentes sur la photo,le
+                    <b>{" lieu"}</b>, ou bien encore l' <b>{" évènement"}</b> où
                     celle ci a été prise.
                     <br />
                     <b>Cliquer sur ajouter entre chaque mot clé </b>
@@ -244,7 +244,7 @@ const Multiple = () => {
           <button
             onClick={() => setShowPreview((prev) => !prev)}
             type="button"
-            className="px-4 py-2 rounded-lg bg-background w-fit self-center"
+            className="px-4 py-2 rounded-lg bg-background w-fit self-center dark:text-black"
           >
             Afficher la prévisualisation
           </button>

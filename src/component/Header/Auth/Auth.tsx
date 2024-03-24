@@ -13,6 +13,8 @@ const Auth = () => {
   const { getParams } = useOptionalParams();
   const inscription = getParams("inscription") === "true" ? true : false;
 
+  const connection = getParams("connection") === "true" ? true : false;
+
   const handleModalOpening = () => {
     setIsModalOpen(true);
   };
@@ -24,10 +26,10 @@ const Auth = () => {
   };
 
   useEffect(() => {
-    if (inscription && inscription === true) {
+    if ((inscription && inscription === true) || connection) {
       setIsModalOpen(true);
     }
-  }, [inscription]);
+  }, [inscription, connection]);
   return (
     <>
       {!authState.user ? (

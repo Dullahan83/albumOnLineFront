@@ -1,20 +1,26 @@
 import {
   Button,
+  Checkbox,
   Dialog,
   DialogContent,
   DialogTitle,
+  FormControlLabel,
   Slide,
   TextField,
 } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 import { TransitionProps } from "@mui/material/transitions";
 import { useMutation } from "@tanstack/react-query";
-import React, { ComponentPropsWithoutRef, useRef, useState } from "react";
+import React, {
+  ComponentPropsWithoutRef,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useAuth } from "../../../Hooks/useAuth";
 import useOptionalParams from "../../../Hooks/useOptionalParams";
 import useToast from "../../../Hooks/useToast";
 import { cn, resetPasswordDemand } from "../../Utils/func";
-
 interface AuthModalProps extends ComponentPropsWithoutRef<"dialog"> {
   open: boolean;
   onClose: () => void;
@@ -31,12 +37,21 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="left" ref={ref} {...props} />;
 });
 
+export const regex = {
+  username: new RegExp(/(\s?\w?\d?){3,16}/),
+  email: new RegExp(
+    /^[a-zA-Z0-9._%+-]{1,64}@[a-zA-Z0-9.-]{1,253}\.[a-zA-Z]{2,4}$/
+  ),
+  password: new RegExp(/^[^\s]{6,}$/),
+};
+
 const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
   // const [connection, setConnection] = useState(inscription ? false : true);
   const [passwordError, setPasswordError] = useState(false);
   const [modalStatus, setModalStatus] = useState<ModalStatus>(
     inscription ? "inscription" : "connection"
   );
+  const [isAffiliated, setIsAffiliated] = useState(false);
   const { login, signup } = useAuth();
   const { getParams } = useOptionalParams();
   const { Toast, handleToast } = useToast();
@@ -65,6 +80,7 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
       handleClose();
       formRef.current?.reset();
       setPasswordError(false);
+      handleToast("success", `Inscription réussie`);
     },
   });
 
@@ -90,6 +106,8 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
   });
   const handleClose = () => {
     onClose();
+    setIsAffiliated(false);
+    setModalStatus("connection");
   };
 
   const handleKeydown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -103,20 +121,20 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
   const handleInscriptionSubmit = () => {
     if (formRef.current) {
       const { username, email, password, passwordConfirm } = formRef.current;
-      if (password.value.length < 5) {
+      if (!regex.password.test(password.value)) {
         handleToast(
           "warning",
           `Merci d'utiliser un mot de passe d'au moins
-          5 caractères
+          6 caractères
         `
         );
         return;
       }
-      if (passwordConfirm.value !== password.value) {
+      if (!isAffiliated && passwordConfirm.value !== password.value) {
         setPasswordError(true);
         return;
       }
-      if (email.value.length < 5) {
+      if (!regex.email.test(email.value.length)) {
         handleToast(
           "warning",
           `Attention, l'Email est obligatoire
@@ -129,7 +147,7 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
         const demoAlbumId = "b5d5c8eb-706b-4a83-bb3b-ce70d639f6e4";
         signupMutation.mutate({
           albumId: demoAlbumId,
-          name: username.value,
+          name: !isAffiliated ? username.value : "",
           email: email.value,
           password: password.value,
         });
@@ -138,7 +156,7 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
 
       signupMutation.mutate({
         albumId: albumId,
-        name: username.value,
+        name: !isAffiliated ? username.value : "",
         email: email.value,
         password: password.value,
       });
@@ -162,17 +180,31 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
   };
 
   const handleConnectionSubmit = () => {
+    const { email, password } = formRef.current;
+    if (!regex.email.test(email.value)) {
+      handleToast("warning", `Merci de renseigner une addresse email correcte`);
+      return;
+    }
+    if (!password.value.length) {
+      handleToast("warning", "Aucun mot de passe fourni");
+      return;
+    }
     loginMutation.mutate({
       email: formRef.current?.email.value,
       password: formRef.current?.password.value,
     });
   };
+
   const handleSubmitReset = () => {
     if (formRef.current) {
       const { email } = formRef.current;
       resetMutation.mutate(email.value);
     }
   };
+
+  useEffect(() => {
+    formRef?.current?.reset();
+  }, [open]);
 
   return (
     <Dialog
@@ -184,7 +216,8 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
       className=""
       PaperProps={{
         sx: {
-          padding: "24px",
+          padding: "36px",
+          paddingTop: "18px",
           borderRadius: "16px",
         },
       }}
@@ -209,23 +242,26 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
       </DialogTitle>
       <DialogContent
         sx={{
-          paddingBottom: 0,
+          padding: 0,
           transition: "height ease-out 100ms",
           height:
             modalStatus === "reset"
-              ? "135px"
+              ? "235px"
               : modalStatus === "connection"
               ? "225px"
-              : "350px",
+              : isAffiliated
+              ? "245px"
+              : "382px",
           overflow: "hidden",
         }}
       >
         <form
           ref={formRef}
           className={cn(
-            "flex flex-col justify-between pt-4 gap-y-6 min-w-[350px]",
+            "flex flex-col justify-between pt-4 gap-y-6 md:min-w-[350px]",
             {
               " pt-8 ": modalStatus === "connection",
+              " pt-0 max-w-[350px]  ": modalStatus === "reset",
             }
           )}
         >
@@ -266,17 +302,32 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
           )}
           {modalStatus === "inscription" && (
             <>
-              <TextField
-                type="text"
-                id="username"
-                name="username"
-                variant="standard"
-                label="Votre Nom d'utilisateur"
-                required
-                onKeyDown={(e) =>
-                  e.key === "Enter" && formRef.current.email.focus()
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={isAffiliated}
+                    onChange={() => setIsAffiliated((prev) => !prev)}
+                  />
                 }
+                label="Je suis déjà affilié à un autre album"
+                labelPlacement="start"
+                className="self-start underline underline-offset-4"
+                sx={{ margin: 0, marginBottom: -2 }}
               />
+
+              {!isAffiliated && (
+                <TextField
+                  type="text"
+                  id="username"
+                  name="username"
+                  variant="standard"
+                  label="Votre Nom d'utilisateur"
+                  required
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && formRef.current.email.focus()
+                  }
+                />
+              )}
               <TextField
                 id="email"
                 type="email"
@@ -300,19 +351,23 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
                   e.key === "Enter" && formRef.current.passwordConfirm.focus()
                 }
               />
-              <TextField
-                id="passwordConfirm"
-                type="password"
-                name="passwordConfirm"
-                variant="standard"
-                label="Confirmation du mot de passe"
-                required
-                error={passwordError}
-                helperText={
-                  passwordError ? "Les mots de passe doivent correspondre." : ""
-                }
-                onKeyDown={handleKeydown}
-              />
+              {!isAffiliated && (
+                <TextField
+                  id="passwordConfirm"
+                  type="password"
+                  name="passwordConfirm"
+                  variant="standard"
+                  label="Confirmation du mot de passe"
+                  required
+                  error={passwordError}
+                  helperText={
+                    passwordError
+                      ? "Les mots de passe doivent correspondre."
+                      : ""
+                  }
+                  onKeyDown={handleKeydown}
+                />
+              )}
               <Button
                 sx={{ fontSize: "18px" }}
                 className="w-fit self-center"
@@ -321,13 +376,20 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
                 {signupMutation.isPending ? (
                   <CircularProgress size={25} color="inherit" />
                 ) : (
-                  "S'inscire"
+                  "S'inscrire"
                 )}
               </Button>
             </>
           )}
           {modalStatus === "reset" && (
             <>
+              <h1 className="text-base lg:text-2xl text-blue-500">
+                Réinitialisez votre mot de passe
+              </h1>
+              <h2 className="text-sm italic -mt-2 break-words whitespace-pre-wrap flex">
+                Entrez votre adresse email pour recevoir un lien de
+                réinitialisation de mot de passe.
+              </h2>
               <TextField
                 id="email"
                 type="email"
@@ -340,13 +402,13 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
 
               <Button
                 sx={{ fontSize: "18px" }}
-                className="w-fit self-center"
+                className="w-fit self-center lg:text-lg"
                 onClick={handleSubmitReset}
               >
                 {resetMutation.isPending ? (
                   <CircularProgress size={25} color="inherit" />
                 ) : (
-                  "Envoyer"
+                  "Envoyer la demande"
                 )}
               </Button>
             </>

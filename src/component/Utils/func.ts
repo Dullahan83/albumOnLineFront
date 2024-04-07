@@ -13,7 +13,7 @@ export const uploadMultiple = async ({
   param: string;
 }) => {
   try {
-    const token = localStorage.getItem("authToken"); // Récupérer le token du localStorage
+    const token = sessionStorage.getItem("authToken"); // Récupérer le token du sessionStorage
     if (!token) throw new Error("Pas de token detecté");
     const response = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}/createBatch/${param}`,
@@ -37,7 +37,7 @@ export const getPictures = async (albumId: string) => {
 
   const { signal } = new AbortController();
   try {
-    const token = localStorage.getItem("authToken"); // Récupérer le token du localStorage
+    const token = sessionStorage.getItem("authToken"); // Récupérer le token du sessionStorage
     if (!token) return;
     const response = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}/getAll/${albumId}`,
@@ -69,7 +69,7 @@ export const deletePicture = async ({
   albumId: string;
 }) => {
   try {
-    const token = localStorage.getItem("authToken"); // Récupérer le token du localStorage
+    const token = sessionStorage.getItem("authToken"); // Récupérer le token du sessionStorage
     if (!token) throw new Error("Pas de token detecté");
     const response = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}/deleteOne/${albumId}/${id}`,
@@ -97,7 +97,7 @@ type UpdatePictureProps = {
 };
 export const updatePicture = async ({ albumId, body }: UpdatePictureProps) => {
   try {
-    const token = localStorage.getItem("authToken"); // Récupérer le token du localStorage
+    const token = sessionStorage.getItem("authToken"); // Récupérer le token du sessionStorage
     if (!token) throw new Error("Pas de token detecté");
     const response = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}/updateOne/${albumId}`,
@@ -186,7 +186,6 @@ export const resetPassword = async ({
         body: JSON.stringify(body),
       }
     );
-    console.log(response);
 
     if (!response.ok) throw new Error();
   } catch (error) {

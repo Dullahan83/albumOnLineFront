@@ -9,15 +9,18 @@ interface ConfirmationModalProps extends ComponentPropsWithoutRef<"dialog"> {
   pictureData: Image;
   setSelected: (val: number) => void;
   index: number;
+  imgArray: Image[];
 }
 const ConfirmationModal = forwardRef<HTMLDialogElement, ConfirmationModalProps>(
-  ({ onClose, pictureData, setSelected, index }, ref) => {
+  ({ onClose, pictureData, setSelected, index, imgArray }, ref) => {
     const { currentAlbum } = useContext(AuthContext);
     const queryClient = useQueryClient();
     const modalBody = React.useRef<HTMLDivElement>(null);
     const deletePictureMutation = useMutation({
       mutationFn: deletePicture,
       onSuccess: () => {
+        if (imgArray.length === 0) onClose();
+        if (index === imgArray.length - 1) setSelected(imgArray.length - 2);
         queryClient.invalidateQueries({ queryKey: ["album"] });
       },
     });
@@ -44,6 +47,7 @@ const ConfirmationModal = forwardRef<HTMLDialogElement, ConfirmationModalProps>(
       <dialog
         onClick={handleClick}
         ref={ref}
+        id="pictureDeletionModal"
         className={
           "min-w-full fixed top-0 min-h-screen bg-black/50 text-black dark:text-white open:flex open:flex-col items-center justify-center"
         }

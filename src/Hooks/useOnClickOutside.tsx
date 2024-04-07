@@ -1,10 +1,21 @@
 import { MutableRefObject, useEffect } from "react";
 
-const useOnClickOutside = (ref: MutableRefObject<HTMLDivElement>, handler) => {
+const useOnClickOutside = (
+  ref: MutableRefObject<HTMLElement>,
+  handler: () => void,
+  exceptionRef?: MutableRefObject<HTMLElement>
+) => {
   useEffect(() => {
     const listener = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (!ref.current || !target.contains(ref.current)) return;
+      if (
+        exceptionRef &&
+        exceptionRef.current &&
+        exceptionRef.current.contains(target)
+      ) {
+        return;
+      }
+      if (!ref.current || ref.current.contains(target)) return;
 
       handler();
 
@@ -15,7 +26,7 @@ const useOnClickOutside = (ref: MutableRefObject<HTMLDivElement>, handler) => {
     return () => {
       document.removeEventListener("mousedown", listener);
     };
-  }, [ref, handler]);
+  }, [ref, handler, exceptionRef]);
 };
 
 export default useOnClickOutside;

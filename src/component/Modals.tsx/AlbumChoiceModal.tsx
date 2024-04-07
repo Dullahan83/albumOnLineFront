@@ -35,6 +35,7 @@ const AlbumChoiceModal = ({ open, onClose }: AlbumChoiceModalProps) => {
   };
   const handleAlbumChoice = (albumId: string) => {
     setCurrentAlbum(albumId);
+    sessionStorage.setItem("currAlbum", albumId);
     onClose();
     navigate("/");
   };
@@ -48,15 +49,26 @@ const AlbumChoiceModal = ({ open, onClose }: AlbumChoiceModalProps) => {
       aria-describedby="album choice modal"
       PaperProps={{
         sx: {
-          padding: "24px 16px", // Applique un padding autour du contenu du Dialog
+          padding: "16px", // Applique un padding autour du contenu du Dialog
+          paddingTop: 0,
+          maxWidth: "550px",
+          borderRadius: "16px",
         },
       }}
     >
-      <DialogTitle className="flex self-center gap-x-8">
+      <DialogTitle
+        className="flex self-center gap-x-8 underline underline-offset-4 text-blue-500"
+        sx={{
+          fontSize: "22px",
+          "@media (min-width: 1024px)": {
+            fontSize: "26px",
+          },
+        }}
+      >
         Choisissez votre album
       </DialogTitle>
 
-      <DialogContent className="flex flex-col items-center">
+      <DialogContent className="flex flex-col items-center italic text-sm sm:text-base">
         <DialogContentText className="text-center">
           Il semblerait que vous soyez affilié à plusieurs albums en même temps
         </DialogContentText>
@@ -70,6 +82,7 @@ const AlbumChoiceModal = ({ open, onClose }: AlbumChoiceModalProps) => {
             <Button
               key={index}
               onClick={() => handleAlbumChoice(album.albumId)}
+              sx={{ fontSize: "1.2rem" }}
             >
               {album.name}
             </Button>

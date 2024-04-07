@@ -14,7 +14,7 @@ type CarouselPictureProps = {
   handleClick?: (val: number) => void;
 } & ComponentPropsWithoutRef<"div">;
 
-type Orientation = "portrait" | "landscape";
+// type Orientation = "portrait" | "landscape";
 
 const CarouselPicture = ({
   pictureData,
@@ -25,17 +25,17 @@ const CarouselPicture = ({
   const { url, legend, keyword } = pictureData;
   const imgRef = useRef<HTMLImageElement | null>(null);
   // const bgUrl = url?.split("/").join("/mini/");
-  const [orientation, setOrientation] = useState<Orientation>("landscape");
+  // const [orientation, setOrientation] = useState<Orientation>("landscape");
   const flatKeys = keyword.map((word: { word: string }) => word.word);
   const [loaded, setLoaded] = useState(false);
   const thumbUrl = pictureData?.url?.split("/").join("/thumb/");
 
   const handleLoading = () => {
     if (imgRef.current) {
-      const img = imgRef.current;
-      const imgOrientation =
-        img.naturalHeight > img.naturalWidth ? "portrait" : "landscape";
-      setOrientation(imgOrientation);
+      // const img = imgRef.current;
+      // const imgOrientation =
+      //   img.naturalHeight > img.naturalWidth ? "portrait" : "landscape";
+      // setOrientation(imgOrientation);
       imgRef.current?.parentElement?.classList.add("loaded");
       setLoaded(true);
     }
@@ -44,7 +44,7 @@ const CarouselPicture = ({
   useEffect(() => {
     imgRef.current?.parentElement?.classList.add("loaded");
     setLoaded(true);
-  }, [orientation]);
+  }, [imgRef.current?.complete]);
 
   imgRef.current?.complete &&
     imgRef.current?.parentElement?.classList.add("loaded");
@@ -79,20 +79,23 @@ const CarouselPicture = ({
                 ? import.meta.env.VITE_BACKEND_IMAGES
                 : ""
             }/${url}`}
-            className={cn(`${className} backdrop-blur-xl`, {})}
+            className={cn(`backdrop-blur-xl object-contain`, {})}
             alt={""}
             loading={loading}
             style={{ minWidth: 350 }}
           ></img>
-          {legend && (
-            <div
-              className={cn(
-                "absolute bottom-0 w-full translate-y-full text-white max-h-[70px] flex justify-center items-center  bg-black/40 p-2 backdrop-blur-lg overflow-hidden group-hover:translate-y-0 transition-transform duration-100"
-              )}
-            >
-              {legend}
-            </div>
-          )}
+
+          <div
+            className={cn(
+              "absolute bottom-0 w-full translate-y-full text-white max-h-[70px] flex flex-col justify-center items-center  bg-black/40 p-2 backdrop-blur-lg overflow-hidden group-hover:translate-y-0 transition-transform duration-100"
+            )}
+          >
+            {legend && legend}
+            <span className={cn({ "mt-1": pictureData?.legend })}>
+              {new Date(pictureData.date.date).toLocaleDateString()}
+            </span>
+          </div>
+
           <div
             className={cn(
               "absolute top-0 w-full text-white max-h-[70px] -translate-y-full flex justify-center items-center  bg-black/40 p-2 backdrop-blur-lg overflow-hidden group-hover:translate-y-0 transition-transform duration-100"

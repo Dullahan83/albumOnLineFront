@@ -4,6 +4,7 @@ import React, { useContext, useEffect } from "react";
 import AuthContext from "../../../Context/AuthContext";
 import { useAuth } from "../../../Hooks/useAuth";
 import useOptionalParams from "../../../Hooks/useOptionalParams";
+import { useWindowSize } from "../../../Hooks/useWindowSize";
 import AuthModal from "./AuthModal";
 
 const Auth = () => {
@@ -11,6 +12,8 @@ const Auth = () => {
   const { authState } = useContext(AuthContext);
   const { logout } = useAuth();
   const { getParams } = useOptionalParams();
+  const { width } = useWindowSize();
+
   const inscription = getParams("inscription") === "true" ? true : false;
 
   const connection = getParams("connection") === "true" ? true : false;
@@ -33,12 +36,20 @@ const Auth = () => {
   return (
     <>
       {!authState.user ? (
-        <button className="" onClick={handleModalOpening}>
-          <LoginIcon />
+        <button onClick={handleModalOpening} aria-label="Log-in" title="Log-in">
+          {width >= 640 ? (
+            <LoginIcon />
+          ) : (
+            <span className=" flex sm:hidden">Connexion</span>
+          )}
         </button>
       ) : (
-        <button onClick={handleLogOut}>
-          <LogoutIcon />
+        <button onClick={handleLogOut} aria-label="Log-out" title="Log-out">
+          {width >= 640 ? (
+            <LogoutIcon className="hidden sm:flex" />
+          ) : (
+            <span className="flex sm:hidden">Deconnexion</span>
+          )}
         </button>
       )}
       <AuthModal

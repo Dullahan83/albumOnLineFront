@@ -1,30 +1,43 @@
-import { Fragment, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
+import { Fragment } from "react/jsx-runtime";
+import { TimelineContext } from "../../Context/TimeLineContext";
 import { cn } from "../Utils/func";
 import TimeGap from "./TimeGap";
 
 type TimeLineProps = {
   arrayYear: number[];
+  // filterState: FilterStateProps;
 };
 
 const TimeLine = ({ arrayYear }: TimeLineProps) => {
   // const year = window.location.href.split("#")[1];
   // const currentYear = year ? Number(year) : arrayYear[0];
-  const [activeYear, setActiveYear] = useState<number>(0);
-  const startingYear = new Date().getFullYear();
+  const { activeYear, setActiveYear } = useContext(TimelineContext);
+  // const [activeYear, setActiveYear] = useState<number>(0);
+  // const startingYear = new Date().getFullYear();
   const endingYear = 1950;
+  const year = window.location.href.split("#")[1];
+  const currentYear = !year
+    ? null
+    : arrayYear.includes(Number(year))
+    ? Number(year)
+    : arrayYear[0];
 
   useEffect(() => {
-    const year = window.location.href.split("#")[1];
-    const currentYear = year ? Number(year) : arrayYear[0];
-    setActiveYear(currentYear);
-  }, []);
-
-  useEffect(() => {
-    const section = document.getElementById(String(activeYear));
+    setActiveYear(currentYear ? currentYear : arrayYear[0]);
+    // handleTimeGapClick(currentYear);
+    const section = document.getElementById(String(currentYear));
+    // if (filterState.year.length || filterState.keyword.length) return;
     section?.scrollIntoView();
-  }, [activeYear]);
+  }, [currentYear, arrayYear, setActiveYear]);
 
-  return arrayYear?.length ? (
+  // useEffect(() => {
+  //   const section = document.getElementById(String(activeYear));
+  //   section?.scrollIntoView();
+  //   console.log(activeYear);
+  // }, [activeYear]);
+
+  return arrayYear?.length > 1 ? (
     <div className="sticky h-[87.5vh] top-[10vh] right-full -translate-x-14 lg:-translate-x-20 w-fit flex-col z-50 hidden sm:flex">
       <div className="relative h-full">
         <hr className="h-full w-1 dark:bg-white/50 bg-black/50 rounded-full z-10 relative mix-blend-overlay" />
@@ -35,9 +48,9 @@ const TimeLine = ({ arrayYear }: TimeLineProps) => {
               arrayYear[index] - arrayYear[index + 1];
             return (
               <Fragment key={index}>
-                {arrayYear[0] < startingYear && index === 0 && (
+                {/* {arrayYear[0] < startingYear && index === 0 && (
                   <TimeGap timeGap={startingYear - year} />
-                )}
+                )} */}
                 <a
                   className={cn(
                     "relative left-3 leading-5 text-sm flex  hover:cursor-pointer",

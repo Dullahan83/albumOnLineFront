@@ -14,19 +14,22 @@ import usePagination from "../Hooks/usePagination";
 import FilterBlock from "../component/Filters/FilterBlock";
 import FilterThumbnail from "../component/Filters/FilterThumbnail";
 import Layout from "../component/Layout/Layout";
-import SectionDisplayPictures from "../component/Layout/SectionDisplayPictures";
 import TimeLine from "../component/Layout/TimeLine";
-import CarouselModal from "../component/Modals.tsx/CarouselModal";
 import ConfirmationModal from "../component/Modals.tsx/ConfirmationModal";
 import UpdateModal from "../component/Modals.tsx/UpdateImageModal";
 import ReturnTopIcon from "../component/Shared/ReturnTopIcon";
 import PictureContainer from "../component/SuspenseComponent/PictureContainer";
+import SectionSqueleton from "../component/SuspenseComponent/SectionSqueleton";
 
 export type Filter = string | number;
 export type ActiveList = "year" | "keyword";
 
 const LazySectionDisplayPicture = React.lazy(
   () => import("../component/Layout/SectionDisplayPictures")
+);
+
+const LazyCarouselModal = React.lazy(
+  () => import("../component/Modals.tsx/CarouselModal")
 );
 
 const Album = () => {
@@ -114,8 +117,8 @@ const Album = () => {
 
     return (
       <>
-        <Suspense fallback={<div>chargement en cours ...</div>}>
-          <SectionDisplayPictures
+        <Suspense fallback={<SectionSqueleton />}>
+          <LazySectionDisplayPicture
             datas={arr}
             periodStart={periodStart}
             periodEnd={periodStart - periodInterval}
@@ -125,7 +128,7 @@ const Album = () => {
             handleClick={handleOpenModal}
             selected={selected}
             originalList={filteredData}
-          ></SectionDisplayPictures>
+          ></LazySectionDisplayPicture>
         </Suspense>
         {createIntervalsPicturesDisplay(restArray, nextPeriodStart)}
       </>
@@ -235,7 +238,11 @@ const Album = () => {
   return (
     <>
       <Layout>
-        <div className="flex flex-col items-center relative z-0 h-full pb-10 min-h-screen px-6 sm:px-16 lg:px-28">
+        <div
+          className={
+            "flex flex-col items-center relative z-0 h-full  flex-grow px-6 sm:px-16 lg:px-28"
+          }
+        >
           <h1 className="text-3xl my-10 font-bold">Album</h1>
           <FilterBlock
             activeList={activeList}
@@ -269,11 +276,17 @@ const Album = () => {
             <PictureContainer />
           ) : (
             <>
-              <div className="flex w-full relative -z-10 ">
+              <div
+                className="flex w-full relative -z-10 "
+                ref={scrollContainerRef}
+              >
                 {updatedYearList && (
-                  <TimeLine arrayYear={updatedYearList.sort((a, b) => b - a)} />
+                  <TimeLine
+                    // filterState={filterState}
+                    arrayYear={updatedYearList.sort((a, b) => b - a)}
+                  />
                 )}
-                <div className="relative flex flex-col w-full">
+                <div className="relative flex flex-col w-full ">
                   {filteredData &&
                     createIntervalsPicturesDisplay(
                       filteredData,
@@ -295,13 +308,17 @@ const Album = () => {
             />
           )}
         </div>
-        <CarouselModal
-          imgArray={!filterState.year.length ? filteredData : paginatedData}
-          index={selected}
-          onClose={handleCloseModal}
-          setIndex={handleSelectPicture2}
-          ref={dialogRef}
-        />
+        <Suspense
+          fallback={<div className="fixed w-full h-full bg-black/20"></div>}
+        >
+          <LazyCarouselModal
+            imgArray={!filterState.year.length ? filteredData : paginatedData}
+            index={selected}
+            onClose={handleCloseModal}
+            setIndex={handleSelectPicture2}
+            ref={dialogRef}
+          />
+        </Suspense>
         {isUpdating && paginatedData ? (
           <UpdateModal
             open={isUpdating}
@@ -313,6 +330,7 @@ const Album = () => {
         ) : null}
         {paginatedData && (
           <ConfirmationModal
+            imgArray={filteredData}
             index={selected}
             setSelected={handleSelectPicture}
             key={

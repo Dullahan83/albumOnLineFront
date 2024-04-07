@@ -1,7 +1,10 @@
 import { useReducer } from "react";
 import { ActiveList, Filter } from "../pages/Album";
 
-const filterReducer = (state, action) => {
+const filterReducer = (
+  state: FilterStateProps,
+  action: FilterAction
+): FilterStateProps => {
   switch (action.type) {
     case "ADD_FILTER":
       return {
@@ -25,7 +28,17 @@ const filterReducer = (state, action) => {
   }
 };
 
-const initialFilterState = {
+type FilterAction =
+  | { type: "ADD_FILTER"; filterCategory: ActiveList; payload: Filter }
+  | { type: "REMOVE_FILTER"; filterCategory: ActiveList; payload: Filter }
+  | { type: "RESET_FILTERS" };
+
+export type FilterStateProps = {
+  year: number[];
+  keyword: string[];
+};
+
+const initialFilterState: FilterStateProps = {
   year: [],
   keyword: [],
 };

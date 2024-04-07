@@ -30,6 +30,7 @@ const FilterGroup: React.FC<FilterProps> = ({
 
   const [isTyping, setIsTyping] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLUListElement>(null);
 
   const handleOpenState = () => {
     setIsOpen(!isOpen);
@@ -59,7 +60,7 @@ const FilterGroup: React.FC<FilterProps> = ({
     setActive(filterType);
   };
 
-  useOnClickOutside(ref, handleClose);
+  useOnClickOutside(menuRef, handleClose, ref);
 
   useEffect(() => {
     setIsOpen(activeList === filterType);
@@ -92,6 +93,7 @@ const FilterGroup: React.FC<FilterProps> = ({
       </div>
       {isOpen && (
         <ul
+          ref={menuRef}
           className={cn(
             " w-[calc(100%+4px)] hidden absolute -ml-0.5 z-50 bg-inherit p-2 pt-4 -mt-1 gap-y-2 max-h-[250px] overflow-y-scroll rounded-b-lg  ",
             {
@@ -109,7 +111,6 @@ const FilterGroup: React.FC<FilterProps> = ({
                   .toLowerCase()
                   .includes(inputValue.toLowerCase())
               )
-              .sort()
               .map((filter, index) => (
                 <li
                   key={index}

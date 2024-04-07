@@ -109,19 +109,6 @@ const CustomPicture = ({
           onClick={() => (inAlbum ? handleClick && handleShowPicture() : null)}
         ></img>
 
-        {pictureData?.legend && (
-          <div
-            className={cn(
-              "absolute bottom-0 w-full translate-y-full text-white max-h-[70px] flex justify-center items-center  bg-black/40 p-2 backdrop-blur-lg overflow-hidden group-hover:translate-y-0 transition-transform duration-100",
-              {
-                " text-[10px] sm:text-xs min-h-[30px]": inAlbum,
-                hidden: !inAlbum,
-              }
-            )}
-          >
-            {pictureData?.legend}
-          </div>
-        )}
         <div
           className={cn(
             "absolute top-0 w-full z-0 text-white max-h-[70px] -translate-y-full flex justify-center items-center  bg-black/40 p-2 backdrop-blur-lg overflow-hidden group-hover:translate-y-0 transition-transform duration-100",
@@ -145,6 +132,22 @@ const CustomPicture = ({
             <EditIcon onClick={onEdit} />
           ) : null}
         </div>
+
+        <div
+          className={cn(
+            "absolute bottom-0 w-full translate-y-full text-white max-h-[70px] flex flex-col justify-center items-center  bg-black/40 p-2 backdrop-blur-lg overflow-hidden group-hover:translate-y-0 transition-transform duration-100",
+            {
+              " text-[10px] sm:text-xs min-h-[30px]": inAlbum,
+              hidden: !inAlbum,
+            }
+          )}
+        >
+          {pictureData?.legend && pictureData?.legend}
+          <span className={cn({ "mt-1": pictureData?.legend })}>
+            {new Date(pictureData.date.date).toLocaleDateString()}
+          </span>
+        </div>
+
         <title>{flatKeys?.join(", ")}</title>
       </div>
     </>

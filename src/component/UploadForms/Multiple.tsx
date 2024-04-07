@@ -61,7 +61,7 @@ const Multiple = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["album"] });
       setImages([]);
-      setDate(null);
+      setDate(dayjs(new Date()));
       multipleFormRef.current?.reset();
       handleToast("success", "Photo ajoutée avec succès");
       setKeywordList([]);
@@ -180,6 +180,8 @@ const Multiple = () => {
                 label="Mot(s) clé(s)"
                 fullWidth
                 onKeyDown={handleKeydown}
+                spellCheck="true"
+                autoComplete="true"
               />
               <Button
                 onClick={handleAddKeyword}

@@ -65,7 +65,7 @@ const mockupData = [
       { word: "sunrise" },
     ],
     legend: "A breathtaking view of a serene lake at sunrise.",
-    url: "mockImage1.png",
+    url: "mockImageHome.webp",
     user: { id: 1, name: "John Doe", validated: true },
   },
   {
@@ -303,14 +303,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const id = getAlbumIdFromUrl();
-    setCurrentAlbum(id);
+    id && setCurrentAlbum(id);
   }, []);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("authToken");
+    const storedToken = sessionStorage.getItem("authToken");
+    const currAlbum = sessionStorage.getItem("currAlbum");
     if (storedToken === "undefined" || storedToken === undefined) {
-      localStorage.removeItem("authToken");
+      sessionStorage.removeItem("authToken");
       return;
+    }
+    if (currAlbum && currAlbum !== "undefined") {
+      setCurrentAlbum(currAlbum);
     }
     const listAlbum = sessionStorage.getItem("albumList");
     if (listAlbum) {
@@ -318,6 +322,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
     if (storedToken) {
       const decodedUser = jwtDecode<MyJwtPayload>(storedToken);
+      if (decodedUser.exp * 1000 <= Date.now()) {
+        logout();
+        return;
+      }
       setAuthState({
         token: storedToken,
         user: {

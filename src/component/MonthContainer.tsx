@@ -32,11 +32,16 @@ const MonthContainer = ({
 
   return (
     <div className="w-full flex flex-col ">
-      <h3 className=" capitalize text-3xl self-start  w-fit mb-3">{month}</h3>
+      <h3 className=" capitalize text-3xl self-start  w-fit my-4">{month}</h3>
       <div className="flex flex-wrap gap-2">
         {data.map((item, i) => {
           return (
-            <Suspense fallback={<PictureSqueleton />} key={i}>
+            <Suspense
+              fallback={
+                <PictureSqueleton className="flex-[0_1_48%] sm:flex-[0_1_32.2%] lg:flex-[0_1_24.2%] xl:flex-[0_1_16.1%] xxl:flex-[0_1_12%]  aspect-square" />
+              }
+              key={i}
+            >
               <LazyCustomPicture
                 {...props}
                 handleOpen={handleOpen}
@@ -63,7 +68,7 @@ const MonthContainer = ({
           );
         })}
       </div>
-      <hr className="w-5/6 h-1 bg-black/10 backdrop-blur-lg my-10 mx-auto rounded-full " />
+      <hr className="w-5/6 h-1 bg-black/10 backdrop-blur-lg my-20 mx-auto rounded-full " />
     </div>
   );
 };

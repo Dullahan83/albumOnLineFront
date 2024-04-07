@@ -1,11 +1,10 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import React, { useContext, useState } from "react";
+import React, { Suspense, useContext, useState } from "react";
 import AuthContext, { Image } from "../../Context/AuthContext";
 import ArrowIconLeft from "../Shared/ArrowIconLeft";
 import ArrowIconRight from "../Shared/ArrowIconRight";
 import TrashIcon from "../Shared/TrashIcon";
-import { cn, deletePicture } from "../Utils/func";
-import CarouselPicture from "./CarouselPicture";
+import PictureSqueleton from "../SuspenseComponent/PictureSqueleton";
+import { cn } from "../Utils/func";
 
 type CarouselProps = {
   imgArray: Image[];
@@ -14,17 +13,11 @@ type CarouselProps = {
   onClose: () => void;
 };
 
-const Carousel = ({ imgArray, index, setIndex }: CarouselProps) => {
-  const { authState, currentAlbum } = useContext(AuthContext);
-  const [startPos, setStartPos] = useState(0);
-  const queryClient = useQueryClient();
+const LazyCarouselPicture = React.lazy(() => import("./CarouselPicture"));
 
-  const deletePictureMutation = useMutation({
-    mutationFn: deletePicture,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["album"] });
-    },
-  });
+const Carousel = ({ imgArray, index, setIndex }: CarouselProps) => {
+  const { authState } = useContext(AuthContext);
+  const [startPos, setStartPos] = useState(0);
 
   const images = imgArray;
 
@@ -51,19 +44,23 @@ const Carousel = ({ imgArray, index, setIndex }: CarouselProps) => {
   };
 
   const handleDeletePicture = () => {
-    if (confirm("Êtes vous sûr(e)") === true) {
-      deletePictureMutation.mutate({
-        id: imgArray[index].id,
-        albumId: currentAlbum,
-      });
-    } else console.log("pas ok");
+    const modal = document.getElementById("pictureDeletionModal");
+    if (modal instanceof HTMLDialogElement) {
+      modal.showModal();
+    }
+    // if (confirm("Êtes vous sûr(e)") === true) {
+    //   deletePictureMutation.mutate({
+    //     id: imgArray[index].id,
+    //     albumId: currentAlbum,
+    //   });
+    // }
   };
 
   return (
     <div className="w-full h-full flex self-center justify-center text-white overflow-hidden relative  group/parent ">
       {imgArray && authState.user?.userId === imgArray[index]?.user?.id && (
         <TrashIcon
-          className="absolute top-4 left-4"
+          className="absolute top-4 left-4 z-50"
           size="40px"
           onClick={handleDeletePicture}
         />
@@ -80,7 +77,7 @@ const Carousel = ({ imgArray, index, setIndex }: CarouselProps) => {
           color="#fff"
         />
       ) : null}
-      <div className="w-11/12 h-[90%] overflow-hidden self-center">
+      <div className="w-[98%] sm:w-11/12 h-[90%] overflow-hidden self-center">
         <div
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
@@ -93,11 +90,15 @@ const Carousel = ({ imgArray, index, setIndex }: CarouselProps) => {
                 key={i}
                 className=" w-full min-w-full flex items-center justify-center relative"
               >
-                <CarouselPicture
-                  className="h-full "
-                  pictureData={img}
-                  loading="lazy"
-                />
+                <Suspense
+                  fallback={<PictureSqueleton className=" sm:h-full" />}
+                >
+                  <LazyCarouselPicture
+                    className="w-auto max-h-full sm:h-full "
+                    pictureData={img}
+                    loading="lazy"
+                  />
+                </Suspense>
               </div>
             );
           })}

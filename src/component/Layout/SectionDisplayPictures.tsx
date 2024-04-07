@@ -50,7 +50,7 @@ const SectionDisplayPictures = ({
   return datas.length > 0 ? (
     <section
       id={String(periodStart)}
-      className="w-full self-center flex flex-col mb-10"
+      className="w-full self-center flex flex-col last:mb-10 year-section "
     >
       <h2 className=" underline underline-offset-4 mb-8 text-4xl w-fit self-center">
         {ancient ? "Avant 1950" : `Année ${periodStart} `}

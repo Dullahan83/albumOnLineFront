@@ -29,9 +29,10 @@ export const useAuth = () => {
     useContext(AuthContext);
   const navigate = useNavigate();
   const [token, setToken] = useState<string | null>(
-    localStorage.getItem("authToken")
+    sessionStorage.getItem("authToken")
   );
   const queryClient = useQueryClient();
+
   useEffect(() => {
     if (token === undefined || token === "undefined") return;
     if (token) {
@@ -53,10 +54,10 @@ export const useAuth = () => {
       );
       const data: LoginResponse = await response.json();
       if (!response.ok) {
-        throw new Error(data.token || "Échec de la connexion");
+        throw new Error();
       }
       setToken(data.token);
-      localStorage.setItem("authToken", data.token);
+      sessionStorage.setItem("authToken", data.token);
       setAlbumList(data.albumArray);
       if (data.albumArray.length > 1) {
         sessionStorage.setItem("albumList", JSON.stringify(data.albumArray));
@@ -64,8 +65,10 @@ export const useAuth = () => {
         return;
       }
       setCurrentAlbum(data.albumArray[0].albumId);
+      sessionStorage.setItem("currAlbum", data.albumArray[0].albumId);
     } catch (error) {
       console.error("Erreur de connexion:", error);
+      throw error;
     }
   }, []);
 
@@ -85,19 +88,20 @@ export const useAuth = () => {
       }
     } catch (error) {
       console.error("Erreur de connexion:", error);
+      throw error;
     }
   }, []);
 
   const logout = useCallback(() => {
     setToken(null);
-    localStorage.removeItem("authToken");
+    sessionStorage.removeItem("authToken");
     sessionStorage.removeItem("albumList");
+    sessionStorage.removeItem("currAlbum");
     setAuthState({ token: null, user: undefined });
     setAlbumList([]);
     setCurrentAlbum(null);
     navigate("/");
     // window.location.pathname = "/";
-    queryClient.invalidateQueries({ queryKey: ["album"] });
   }, [setAuthState, setAlbumList, navigate, queryClient]);
 
   const autoLogin = useCallback(async (autoLoginToken: string) => {
@@ -114,7 +118,7 @@ export const useAuth = () => {
       }
       if (data) {
         setToken(data.token);
-        localStorage.setItem("authToken", data.token);
+        sessionStorage.setItem("authToken", data.token);
         const decodedUser = jwtDecode<MyJwtPayload>(data.token);
         const { userId, authorized } = decodedUser;
         if (data.albumArray.length > 1) {
@@ -130,6 +134,7 @@ export const useAuth = () => {
       }
     } catch (error: unknown) {
       console.error(error);
+      throw error;
     }
   }, []);
 

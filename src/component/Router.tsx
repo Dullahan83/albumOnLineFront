@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import { AuthProvider } from "../Context/AuthContext";
+import { TimelineProvider } from "../Context/TimeLineContext";
 import Album from "../pages/Album";
 import AutoLogin from "../pages/AutoLogin";
 import Creation from "../pages/Creation";
@@ -17,7 +18,14 @@ const Router = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route element={<ProtectedRoutes />}>
-            <Route path="/album/:albumId" element={<Album />} />
+            <Route
+              path="/album/:albumId"
+              element={
+                <TimelineProvider>
+                  <Album />
+                </TimelineProvider>
+              }
+            />
             <Route path="/upload" element={<Upload />} />
           </Route>
           <Route path="/creation" element={<Creation />} />

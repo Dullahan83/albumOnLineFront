@@ -134,7 +134,7 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
         setPasswordError(true);
         return;
       }
-      if (!regex.email.test(email.value.length)) {
+      if (!regex.email.test(email.value)) {
         handleToast(
           "warning",
           `Attention, l'Email est obligatoire

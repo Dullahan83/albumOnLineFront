@@ -9,7 +9,7 @@ const ProtectedRoutes = () => {
   return (
     <>
       {!user?.authorized && !isLoadings ? (
-        <Navigate to="/Unauthorized" />
+        <Navigate to="/unauthorized" />
       ) : (
         <Outlet />
       )}

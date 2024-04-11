@@ -1,8 +1,8 @@
 import React from "react";
+import { Helmet } from "react-helmet";
 import { useLocation } from "react-router-dom";
 import Header from "../Header/Header";
 import { cn } from "../Utils/func";
-
 const Layout = ({
   children,
   withoutHeader = false,
@@ -29,6 +29,10 @@ const Layout = ({
         }
       )}
     >
+      <Helmet>
+        <link rel="preconnect" href={import.meta.env.VITE_BACKEND_URL} />
+        <link rel="preconnect" href={import.meta.env.VITE_BACKEND_IMAGES} />
+      </Helmet>
       {!withoutHeader && <Header />}
       {children}
     </div>

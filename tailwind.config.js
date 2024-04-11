@@ -26,11 +26,16 @@ export default {
 
       animation: {
         navArrow: "squish 1.5s linear infinite",
+        scale: "scale 1.5s linear infinite",
       },
       keyframes: {
         squish: {
           "0%,100%": { transform: "translateY(-50%) scale(1)" },
           "50%": { transform: "translateY(-50%) scale(0.8)" },
+        },
+        scale: {
+          "0%,100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(0.9)" },
         },
       },
     },

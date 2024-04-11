@@ -1,5 +1,9 @@
 import React, { Suspense, useContext, useState } from "react";
+// import Slider from "react-slick";
+// import "slick-carousel/slick/slick-theme.css";
+// import "slick-carousel/slick/slick.css";
 import AuthContext, { Image } from "../../Context/AuthContext";
+// import useCarouselPagination from "../../Hooks/UseCarouselPagination";
 import ArrowIconLeft from "../Shared/ArrowIconLeft";
 import ArrowIconRight from "../Shared/ArrowIconRight";
 import TrashIcon from "../Shared/TrashIcon";
@@ -15,17 +19,47 @@ type CarouselProps = {
 
 const LazyCarouselPicture = React.lazy(() => import("./CarouselPicture"));
 
+// const NextArrow = ({ ...props }: ComponentPropsWithoutRef<"button">) => {
+//   return (
+//     <ArrowIconRight
+//       className={"absolute top-1/2 right-0 z-50"}
+//       onClick={props.onClick}
+//       size="40px"
+//       color="#fff"
+//     />
+//   );
+// };
+
+// const PrevArrow = ({ ...props }: ComponentPropsWithoutRef<"button">) => {
+//   return (
+//     <ArrowIconLeft
+//       className={"absolute top-1/2 left-0 z-50"}
+//       onClick={props.onClick}
+//       size="40px"
+//       color="#fff"
+//     />
+//   );
+// };
+
 const Carousel = ({ imgArray, index, setIndex }: CarouselProps) => {
   const { authState } = useContext(AuthContext);
   const [startPos, setStartPos] = useState(0);
 
   const images = imgArray;
+  // const {
+  //   paginatedData: images,
+  //   loadNextBatch,
+  //   loadPreviousBatch,
+  // } = useCarouselPagination({ imgArray, index });
 
   const handleNextImage = () => {
-    index < images?.length - 1 && setIndex(index + 1);
+    // if (index >= images.length - 2 && index < imgArray.length - 1)
+    //   loadNextBatch();
+    index < imgArray?.length - 1 && setIndex(index + 1);
   };
 
   const handlePreviousImage = () => {
+    // if (index <= images.length - (images.length - 1)) loadPreviousBatch();
     index > 0 && setIndex(index - 1);
   };
 
@@ -96,7 +130,7 @@ const Carousel = ({ imgArray, index, setIndex }: CarouselProps) => {
                   <LazyCarouselPicture
                     className="w-auto max-h-full sm:h-full "
                     pictureData={img}
-                    loading="lazy"
+                    loading={i <= index + 6 ? "eager" : "lazy"}
                   />
                 </Suspense>
               </div>
@@ -122,3 +156,72 @@ const Carousel = ({ imgArray, index, setIndex }: CarouselProps) => {
 };
 
 export default Carousel;
+
+// const Carousel = ({ imgArray: images, index, setIndex }: CarouselProps) => {
+//   const { authState } = useContext(AuthContext);
+
+//   const handleDeletePicture = () => {
+//     const modal = document.getElementById("pictureDeletionModal");
+//     if (modal instanceof HTMLDialogElement) {
+//       modal.showModal();
+//     }
+//   };
+
+//   const handleNextImage = () => {
+//     index < images?.length - 1 && setIndex(index + 1);
+//     console.log(index);
+//   };
+
+//   const handlePreviousImage = () => {
+//     index > 0 && setIndex(index - 1);
+//   };
+
+//   const sliderSettings = {
+//     dots: false,
+//     infinite: true,
+//     speed: 500,
+//     slidesToShow: 1,
+//     slidesToScroll: 1,
+//     initialSlide: index,
+//     lazyLoading: true,
+//     nextArrow: <NextArrow onClick={handleNextImage} />,
+//     prevArrow: <PrevArrow onClick={handlePreviousImage} />,
+
+//     // Ajouter d'autres paramètres selon les besoins
+//   };
+//   return (
+//     <div className="w-full h-full flex self-center justify-center text-white overflow-hidden relative  group/parent slider-container">
+//       {images && authState.user?.userId === images[index]?.user?.id && (
+//         <TrashIcon
+//           className="absolute top-4 left-4 z-50"
+//           size="40px"
+//           onClick={handleDeletePicture}
+//         />
+//       )}
+//       <Slider
+//         {...sliderSettings}
+//         className="w-[100%] sm:w-11/12 bg-red-500 h-[90%]  self-center object-contain  "
+//       >
+//         {images?.map((img, idx) => (
+//           // <div
+//           //   key={idx}
+//           //   className="h-full flex items-center justify-center relative bg-blue-500"
+//           // >
+//           <Suspense
+//             key={idx}
+//             fallback={<PictureSqueleton className=" sm:h-full" />}
+//           >
+//             {/* Remplacer LazyCarouselPicture par votre composant d'image */}
+//             <LazyCarouselPicture
+//               className="w-auto max-h-full sm:h-full"
+//               pictureData={img}
+//               loading="lazy"
+//             />
+//           </Suspense>
+//           // </div>
+//         ))}
+//       </Slider>
+//     </div>
+//   );
+// };
+// export default Carousel;

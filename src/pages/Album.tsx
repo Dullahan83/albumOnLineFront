@@ -72,7 +72,7 @@ const Album = () => {
     filteredData,
     scrollContainerRef,
   });
-  // setPeriodInterval(5)
+
   const createIntervalsPicturesDisplay = (
     datas: Image[],
     periodStart: number
@@ -303,7 +303,7 @@ const Album = () => {
             <ReturnTopIcon
               size="40px"
               color="#fff"
-              className="fixed bottom-5 right-5 dark:bg-white/25 bg-black/25 backdrop-blur-lg p-4  rounded-xl flex items-center"
+              className="fixed bottom-5 right-5 dark:bg-white/25 bg-black/25 backdrop-blur-lg p-4 rounded-xl flex items-center hover:animate-scale"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             />
           )}

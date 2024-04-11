@@ -27,7 +27,7 @@ const SectionDisplayPictures = ({
   handleSelectPicture,
   originalList,
 }: SectionDisplayPicturesProps) => {
-  const groupPhotos = (datas) => {
+  const groupPhotos = (datas: Image[]) => {
     const groupMap = new Map();
 
     datas.forEach((photo) => {
@@ -67,7 +67,11 @@ const SectionDisplayPictures = ({
               className="blurred-img relative w-full mb-2 sm:mb-0"
               selected={selected}
               onEdit={onEdit}
-              loading={"lazy"}
+              loading={
+                periodStart === Number(originalList[0]?.date.year)
+                  ? "eager"
+                  : "lazy"
+              }
               handleOpen={handleOpen}
               handleSelectPicture={handleSelectPicture}
             />

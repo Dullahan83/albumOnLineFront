@@ -1,16 +1,21 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
+import React, { Suspense } from "react";
 import { AuthProvider } from "../Context/AuthContext";
 import { TimelineProvider } from "../Context/TimeLineContext";
-import Album from "../pages/Album";
-import AutoLogin from "../pages/AutoLogin";
-import Creation from "../pages/Creation";
 import Home from "../pages/Home";
-import ResetPassword from "../pages/ResetPassword";
-import Upload from "../pages/Upload";
-import Page404 from "./Errors/404";
-import Unauthorized from "./Errors/Unauthorized";
 import ProtectedRoutes from "./ProtectedRoutes";
+import PageSqueleton from "./SuspenseComponent/PageSqueleton";
+
+const LazyAlbum = React.lazy(() => import("../pages/Album"));
+// const LazyHome = React.lazy(() => import("../pages/Home"));
+const LazyUpload = React.lazy(() => import("../pages/Upload"));
+const LazyMissing = React.lazy(() => import("./Errors/404"));
+const LazyUnauthorized = React.lazy(() => import("./Errors/Unauthorized"));
+const LazyReset = React.lazy(() => import("../pages/ResetPassword"));
+const LazyAutoLogin = React.lazy(() => import("../pages/AutoLogin"));
+const LazyCreation = React.lazy(() => import("../pages/Creation"));
+
 const Router = () => {
   return (
     <BrowserRouter>
@@ -22,17 +27,17 @@ const Router = () => {
               path="/album/:albumId"
               element={
                 <TimelineProvider>
-                  <Album />
+                  <AlbumComponent />
                 </TimelineProvider>
               }
             />
-            <Route path="/upload" element={<Upload />} />
+            <Route path="/upload" element={<UploadComponent />} />
           </Route>
-          <Route path="/creation" element={<Creation />} />
-          <Route path="/autoLogin" element={<AutoLogin />} />
-          <Route path="*" element={<Page404 />} />
-          <Route path="/unauthorized" element={<Unauthorized />} />
-          <Route path="/reset" element={<ResetPassword />} />
+          <Route path="/creation" element={<CreationComponent />} />
+          <Route path="/autoLogin" element={<AutoLoginComponent />} />
+          <Route path="*" element={<Error404Component />} />
+          <Route path="/unauthorized" element={<UnauthorizedComponent />} />
+          <Route path="/reset" element={<ResetPasswordComponent />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
@@ -40,3 +45,66 @@ const Router = () => {
 };
 
 export default Router;
+
+const AlbumComponent = () => {
+  return (
+    <Suspense fallback={<PageSqueleton page="Album" />}>
+      <LazyAlbum />
+    </Suspense>
+  );
+};
+
+const UploadComponent = () => {
+  return (
+    <Suspense fallback={<PageSqueleton page="Upload" />}>
+      <LazyUpload />
+    </Suspense>
+  );
+};
+
+// const HomeComponent = () => {
+//   return (
+//     <Suspense fallback={<PageSqueleton page="Accueil" />}>
+//       <LazyHome />
+//     </Suspense>
+//   );
+// };
+
+const CreationComponent = () => {
+  return (
+    <Suspense fallback={<PageSqueleton />}>
+      <LazyCreation />
+    </Suspense>
+  );
+};
+
+const AutoLoginComponent = () => {
+  return (
+    <Suspense fallback={<PageSqueleton />}>
+      <LazyAutoLogin />
+    </Suspense>
+  );
+};
+const Error404Component = () => {
+  return (
+    <Suspense fallback={<PageSqueleton />}>
+      <LazyMissing />
+    </Suspense>
+  );
+};
+
+const UnauthorizedComponent = () => {
+  return (
+    <Suspense fallback={<PageSqueleton />}>
+      <LazyUnauthorized />
+    </Suspense>
+  );
+};
+
+const ResetPasswordComponent = () => {
+  return (
+    <Suspense>
+      <LazyReset />
+    </Suspense>
+  );
+};

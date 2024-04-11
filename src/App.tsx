@@ -1,6 +1,5 @@
 import "./App.css";
 import QueryProvider from "./component/Provider/QueryProvider";
-
 import Router from "./component/Router";
 
 function App() {
@@ -8,7 +7,7 @@ function App() {
     <>
       <QueryProvider>
         {/* <AuthProvider> */}
-          <Router />
+        <Router />
         {/* </AuthProvider> */}
       </QueryProvider>
     </>

@@ -23,6 +23,7 @@ const MonthContainer = ({
   handleClick,
   handleOpen,
   handleSelectPicture,
+  loading,
   data,
   onEdit,
   originalList,
@@ -62,7 +63,7 @@ const MonthContainer = ({
                 }}
                 handleClick={handleClick}
                 inAlbum
-                loading="lazy"
+                loading={loading}
               />
             </Suspense>
           );

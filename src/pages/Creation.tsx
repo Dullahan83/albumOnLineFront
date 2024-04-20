@@ -16,11 +16,8 @@ import Layout from "../component/Layout/Layout";
 import { VisuallyHiddenInput } from "../component/UploadForms/Multiple";
 import { cn, createAlbum } from "../component/Utils/func";
 const Creation = () => {
-  // const { getParams } = useOptionalParams();
-  // const navigate = useNavigate();
   const { Toast, handleToast } = useToast();
   const { login } = useAuth();
-  // const auth = getParams("auth");
   const [passwordError, setPasswordError] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const singleRef = useRef<HTMLInputElement>(null);
@@ -63,8 +60,18 @@ const Creation = () => {
       );
       return;
     }
+
     if (!regex.email.test(creationEmail.value)) {
       handleToast("warning", "Merci de renseigner une addresse email correcte");
+    }
+    if (!regex.password.test(creationPassword.value)) {
+      handleToast(
+        "warning",
+        `Merci d'utiliser un mot de passe d'au moins
+          6 caractères
+        `
+      );
+      return;
     }
     if (!isAffiliated && !regex.username.test(username.value)) {
       handleToast(
@@ -98,14 +105,6 @@ const Creation = () => {
       albumCreationMutation.mutate(formData);
     }
   };
-
-  // useEffect(() => {
-  //   if (!auth || auth !== import.meta.env.VITE_CREATION_AUTH) {
-  //     navigate("/unauthorized");
-  //   }
-  // }, [auth]);
-
-  // if (!auth || auth !== import.meta.env.VITE_CREATION_AUTH) return;
 
   return (
     <>

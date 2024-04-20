@@ -1,6 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { jwtDecode } from "jwt-decode";
-import { ReactNode, createContext, useEffect, useState } from "react";
+import {
+  ReactNode,
+  createContext,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { MyJwtPayload, useAuth } from "../Hooks/useAuth";
 import { getPictures } from "../component/Utils/func";
 // import { useLocation } from "react-router-dom";
@@ -65,151 +72,7 @@ const mockupData = [
       { word: "sunrise" },
     ],
     legend: "A breathtaking view of a serene lake at sunrise.",
-    url: "mockImageHome.webp",
-    user: { id: 1, name: "John Doe", validated: true },
-  },
-  {
-    id: 2,
-    date: {
-      date: "1996-01-01T00:00:00.000Z",
-      year: 2023,
-    },
-    keyword: [
-      { word: "cityscape" },
-      { word: "night" },
-      { word: "skyscrapers" },
-      { word: "neon" },
-    ],
-    legend: "The bustling energy of a city at night.",
-    url: "mockImage2.png",
-    user: { id: 1, name: "John Doe", validated: true },
-  },
-  {
-    id: 3,
-    date: {
-      date: "1927-01-01T00:00:00.000Z",
-      year: 2023,
-    },
-    keyword: [
-      { word: "portrait" },
-      { word: "fashion" },
-      { word: "urban" },
-      { word: "futuristic" },
-    ],
-    legend: "A fashion-forward portrait .",
-    url: "mockImage3.png",
-    user: { id: 1, name: "John Doe", validated: true },
-  },
-  {
-    id: 4,
-    date: {
-      date: "2023-01-01T00:00:00.000Z",
-      year: 2000,
-    },
-    keyword: [
-      { word: "surreal" },
-      { word: "clock" },
-      { word: "abstract" },
-      { word: "sky" },
-    ],
-    legend: "",
-    url: "mockImage4.png",
-    user: { id: 1, name: "John Doe", validated: true },
-  },
-  {
-    id: 5,
-    date: {
-      date: "2016-01-01T00:00:00.000Z",
-      year: 2006,
-    },
-    keyword: [
-      { word: "beach" },
-      { word: "sunset" },
-      { word: "hammock" },
-      { word: "tranquility" },
-    ],
-    legend: "",
-    url: "mockImage5.png",
-    user: { id: 1, name: "John Doe", validated: true },
-  },
-  {
-    id: 6,
-    date: {
-      date: "2018-01-01T00:00:00.000Z",
-      year: 1924,
-    },
-    keyword: [
-      { word: "abstract" },
-      { word: "geometric" },
-      { word: "colorful" },
-      { word: "dynamic" },
-    ],
-    legend: "",
-    url: "mockImage6.png",
-    user: { id: 1, name: "John Doe", validated: true },
-  },
-  {
-    id: 7,
-    date: {
-      date: "2023-01-01T00:00:00.000Z",
-      year: 1952,
-    },
-    keyword: [
-      { word: "butterfly" },
-      { word: "flower" },
-      { word: "close-up" },
-      { word: "garden" },
-    ],
-    legend: "",
-    url: "mockImage7.png",
-    user: { id: 1, name: "John Doe", validated: true },
-  },
-  {
-    id: 8,
-    date: {
-      date: "2018-01-01T00:00:00.000Z",
-      year: 1967,
-    },
-    keyword: [
-      { word: "sports" },
-      { word: "soccer" },
-      { word: "action" },
-      { word: "stadium" },
-    ],
-    legend: "",
-    url: "mockImage8.png",
-    user: { id: 1, name: "John Doe", validated: true },
-  },
-  {
-    id: 9,
-    date: {
-      date: "1998-01-01T00:00:00.000Z",
-      year: 2000,
-    },
-    keyword: [
-      { word: "vintage" },
-      { word: "cat" },
-      { word: "elegant" },
-      { word: "monocle" },
-    ],
-    legend: "",
-    url: "mockImage9.png",
-    user: { id: 1, name: "John Doe", validated: true },
-  },
-  {
-    id: 10,
-    date: {
-      date: "1986-01-01T00:00:00.000Z",
-      year: 1995,
-    },
-    keyword: [
-      { word: "winter" },
-      { word: "town" },
-      { word: "snow" },
-      { word: "festive" },
-    ],
-    legend: "",
-    url: "mockImage10.png",
+    url: "HomeImg.webp",
     user: { id: 1, name: "John Doe", validated: true },
   },
 ];
@@ -249,17 +112,13 @@ const getAlbumIdFromUrl = () => {
   return match ? match[1] : null;
 };
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  // Lors de la connection, je récupère l'albumId que j'attribue à un state. Je me sers de ce state pour générer le lien de la page album de façon dynamique étant donné qu'il est partagé sur toute l'application avec le context. Le fait de l'attribuer à un state me permets en même temps de le changer en cas d'appartenance à de multiples albums.
-  // Il faut donc changer la page album en dynamique avec parametre, et la requete associée
-
   const [authState, setAuthState] = useState<AuthState>(defaultState);
   const { logout } = useAuth();
-  // const {pathname} = useLocation()
   const { user } = authState;
   const [isLoadings, setIsLoadings] = useState(true);
   const [currentAlbum, setCurrentAlbum] = useState<string | null>(null);
   const [albumList, setAlbumList] = useState<Album[]>([]);
-
+  const timerRef = useRef<number>();
   const { data, isLoading } = useQuery({
     queryKey: ["album", currentAlbum],
     queryFn: () => getPictures(currentAlbum),
@@ -273,11 +132,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     refetchInterval: 5 * 60 * 1000,
   });
 
-  let timer;
-
+  const resetTimer = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+  }, []);
   // this function sets the timer that logs out the user after xx secs
-  const handleLogoutTimer = () => {
-    timer = setTimeout(() => {
+  const handleLogoutTimer = useCallback(() => {
+    timerRef.current = setTimeout(() => {
       // clears any pending timer.
       resetTimer();
       // Listener clean up. Removes the existing event listener from the window
@@ -286,26 +146,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       // logs out user
       logout();
-    }, 2 * 60 * 60 * 1000); // Every 2 hours. You can change the time.
-  };
-  const resetTimer = () => {
-    if (timer) clearTimeout(timer);
-  };
+    }, 2 * 60 * 60 * 1000); // Every 2 hours.
+  }, [logout, resetTimer]);
 
+  // Add listener to check if user interact with the window, log him out if not
   useEffect(() => {
+    if (!currentAlbum) return;
     Object.values(events).forEach((item) => {
       window.addEventListener(item, () => {
         resetTimer();
         handleLogoutTimer();
       });
     });
-  }, []);
+    return () =>
+      Object.values(events).forEach((item) => {
+        window.removeEventListener(item, resetTimer);
+      });
+  }, [handleLogoutTimer, resetTimer, currentAlbum]);
 
   useEffect(() => {
     const id = getAlbumIdFromUrl();
     id && setCurrentAlbum(id);
   }, []);
 
+  // Use values from storage to achieve data persistance
   useEffect(() => {
     const storedToken = sessionStorage.getItem("authToken");
     const currAlbum = sessionStorage.getItem("currAlbum");

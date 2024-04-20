@@ -24,6 +24,7 @@ export interface MyJwtPayload extends JwtPayload {
   authorized: boolean;
   albumId?: string;
 }
+
 export const useAuth = () => {
   const { authState, setAuthState, setAlbumList, setCurrentAlbum } =
     useContext(AuthContext);
@@ -33,6 +34,7 @@ export const useAuth = () => {
   );
   const queryClient = useQueryClient();
 
+  // Use the useEffect hook to initialize the authentication state based on the token stored in the session storage
   useEffect(() => {
     if (token === undefined || token === "undefined") return;
     if (token) {
@@ -100,8 +102,8 @@ export const useAuth = () => {
     setAuthState({ token: null, user: undefined });
     setAlbumList([]);
     setCurrentAlbum(null);
-    navigate("/");
-    // window.location.pathname = "/";
+    // navigate("/");
+    window.location.pathname = "/";
   }, [setAuthState, setAlbumList, navigate, queryClient]);
 
   const autoLogin = useCallback(async (autoLoginToken: string) => {

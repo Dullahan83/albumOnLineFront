@@ -1,8 +1,8 @@
-import { Skeleton } from "@mui/material";
-import { ComponentPropsWithoutRef, useEffect, useRef, useState } from "react";
+import { ComponentPropsWithoutRef, useRef, useState } from "react";
 import { Image } from "../../Context/AuthContext";
 import { cn } from "../Utils/func";
 
+// Define the type for the CarouselPictureProps, which includes properties for the classDiv, classImg, pictureData, loading, index, selected, onMouseEnter, and handleClick
 type CarouselPictureProps = {
   classDiv?: string;
   classImg?: string;
@@ -14,98 +14,71 @@ type CarouselPictureProps = {
   handleClick?: (val: number) => void;
 } & ComponentPropsWithoutRef<"div">;
 
-// type Orientation = "portrait" | "landscape";
-
+// Define the CarouselPicture component, which takes in the CarouselPictureProps as its props
 const CarouselPicture = ({
   pictureData,
   loading = "lazy",
   className,
   ...props
 }: CarouselPictureProps) => {
+  // Destructure the url, legend, and keyword properties from the pictureData object
   const { url, legend, keyword } = pictureData;
+
+  // Create a ref for the img element
   const imgRef = useRef<HTMLImageElement | null>(null);
-  // const bgUrl = url?.split("/").join("/mini/");
-  // const [orientation, setOrientation] = useState<Orientation>("landscape");
-  const flatKeys = keyword.map((word: { word: string }) => word.word);
+
+  // Create a state variable called loaded, which is initially set to false
   const [loaded, setLoaded] = useState(false);
-  const thumbUrl = pictureData?.url?.split("/").join("/thumb/");
 
   const handleLoading = () => {
-    if (imgRef.current) {
-      // const img = imgRef.current;
-      // const imgOrientation =
-      //   img.naturalHeight > img.naturalWidth ? "portrait" : "landscape";
-      // setOrientation(imgOrientation);
-      imgRef.current?.parentElement?.classList.add("loaded");
-      setLoaded(true);
-    }
-  };
-
-  useEffect(() => {
-    imgRef.current?.parentElement?.classList.add("loaded");
     setLoaded(true);
-  }, [imgRef.current?.complete]);
-
-  imgRef.current?.complete &&
-    imgRef.current?.parentElement?.classList.add("loaded");
+  };
   return (
     <>
-      {!loaded ? (
-        <Skeleton variant="rectangular" height={"100%"} />
-      ) : (
-        <div
-          {...props}
+      <div
+        {...props}
+        className={cn(
+          `${className} relative  flex justify-center group overflow-hidden`
+        )}
+      >
+        <img
+          onLoad={handleLoading}
+          ref={imgRef}
+          src={`${import.meta.env.VITE_BACKEND_IMAGES}/${url}`}
           className={cn(
-            `${className} relative border border-transparent flex justify-center   group hover:shadow-xxl shadow-red-600  overflow-hidden`,
+            `backdrop-blur-xl object-contain h-full min-w-[350px]`,
             {
-              // "row-span-2": orientation === "portrait",
+              "backdrop-blur-none": loaded,
             }
           )}
-          style={{
-            backgroundImage: `url(${
-              import.meta.env.VITE_BACKEND_IMAGES
-            }/${thumbUrl})`,
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            // backgroundSize:'100%' ,
-          }}
+          alt={`picture of ${pictureData?.keyword?.map(
+            (keyword) => keyword?.word
+          )}`}
+          loading={loading}
+        ></img>
+
+        <div
+          className={cn(
+            "absolute bottom-0 w-full translate-y-full text-white max-h-[70px] flex flex-col justify-center items-center  bg-black/40 p-2 backdrop-blur-lg overflow-hidden group-hover:translate-y-0 transition-transform duration-100"
+          )}
         >
-          {/* {!url.includes("mockImage")&&<div className="w-full h-full bg-black/40 backdrop-blur-lg absolute top-0 left-0 z-10"></div>} */}
-          <img
-            onLoad={handleLoading}
-            ref={imgRef}
-            src={`${
-              !url.includes("mockImage")
-                ? import.meta.env.VITE_BACKEND_IMAGES
-                : ""
-            }/${url}`}
-            className={cn(`backdrop-blur-xl object-contain`, {})}
-            alt={""}
-            loading={loading}
-            style={{ minWidth: 350 }}
-          ></img>
-
-          <div
-            className={cn(
-              "absolute bottom-0 w-full translate-y-full text-white max-h-[70px] flex flex-col justify-center items-center  bg-black/40 p-2 backdrop-blur-lg overflow-hidden group-hover:translate-y-0 transition-transform duration-100"
-            )}
-          >
-            {legend && legend}
-            <span className={cn({ "mt-1": pictureData?.legend })}>
-              {new Date(pictureData.date.date).toLocaleDateString()}
-            </span>
-          </div>
-
-          <div
-            className={cn(
-              "absolute top-0 w-full text-white max-h-[70px] -translate-y-full flex justify-center items-center  bg-black/40 p-2 backdrop-blur-lg overflow-hidden group-hover:translate-y-0 transition-transform duration-100"
-            )}
-          >
-            {`Photo ajoutée par ${pictureData.user?.name}`}
-          </div>
-          <title>{flatKeys.join(", ")}</title>
+          {legend}
+          <span className={cn({ "mt-1": pictureData?.legend })}>
+            {new Date(pictureData.date.date).toLocaleDateString()}
+          </span>
         </div>
-      )}
+
+        <div
+          className={cn(
+            "absolute top-0 w-full text-white max-h-[70px] -translate-y-full flex justify-center items-center  bg-black/40 p-2 backdrop-blur-lg overflow-hidden group-hover:translate-y-0 transition-transform duration-100"
+          )}
+        >
+          {`Photo ajoutée par ${pictureData.user?.name}`}
+        </div>
+        <title>
+          {keyword.map((word: { word: string }) => word.word).join(", ")}
+        </title>
+      </div>
     </>
   );
 };

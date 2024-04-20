@@ -58,13 +58,16 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
   const albumId = getParams("album");
 
   const formRef = useRef<HTMLFormElement>(null);
+
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: () => {
       handleClose();
       formRef.current?.reset();
     },
-    onError: () => {
+    onError: (error) => {
+      console.log(error);
+
       handleToast(
         "error",
         `Il semblerait qu'une erreur se soit produite
@@ -104,6 +107,7 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
       );
     },
   });
+  // Closing modal function
   const handleClose = () => {
     onClose();
     setIsAffiliated(false);
@@ -116,6 +120,22 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
         handleConnectionSubmit();
       } else handleInscriptionSubmit();
     }
+  };
+
+  const handleConnectionSubmit = () => {
+    const { email, password } = formRef.current;
+    if (!regex.email.test(email.value)) {
+      handleToast("warning", `Merci de renseigner une addresse email correcte`);
+      return;
+    }
+    if (!password.value.length) {
+      handleToast("warning", "Aucun mot de passe fourni");
+      return;
+    }
+    loginMutation.mutate({
+      email: formRef.current?.email.value,
+      password: formRef.current?.password.value,
+    });
   };
 
   const handleInscriptionSubmit = () => {
@@ -134,11 +154,27 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
         setPasswordError(true);
         return;
       }
-      if (!regex.email.test(email.value)) {
+      if (!email.value.length) {
         handleToast(
           "warning",
           `Attention, l'Email est obligatoire
+        `
+        );
+        return;
+      }
+      if (!regex.email.test(email.value)) {
+        handleToast(
+          "warning",
+          `
           Ce doit être un Email valide
+        `
+        );
+        return;
+      }
+      if (!isAffiliated && !regex.username.test(username.value)) {
+        handleToast(
+          "warning",
+          `Veuillez renseigner votre nom
         `
         );
         return;
@@ -163,6 +199,14 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
     }
   };
 
+  const handleSubmitReset = () => {
+    if (formRef.current) {
+      const { email } = formRef.current;
+      resetMutation.mutate(email.value);
+    }
+  };
+
+  // Toggle modal between Inscription/Connection and reset state
   const handleInscription = () => {
     // setConnection(false);
     setModalStatus("inscription");
@@ -177,29 +221,6 @@ const AuthModal = ({ open, onClose, inscription }: AuthModalProps) => {
   const handleReset = () => {
     setModalStatus("reset");
     formRef.current?.reset();
-  };
-
-  const handleConnectionSubmit = () => {
-    const { email, password } = formRef.current;
-    if (!regex.email.test(email.value)) {
-      handleToast("warning", `Merci de renseigner une addresse email correcte`);
-      return;
-    }
-    if (!password.value.length) {
-      handleToast("warning", "Aucun mot de passe fourni");
-      return;
-    }
-    loginMutation.mutate({
-      email: formRef.current?.email.value,
-      password: formRef.current?.password.value,
-    });
-  };
-
-  const handleSubmitReset = () => {
-    if (formRef.current) {
-      const { email } = formRef.current;
-      resetMutation.mutate(email.value);
-    }
   };
 
   useEffect(() => {

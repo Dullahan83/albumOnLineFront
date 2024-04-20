@@ -2,7 +2,7 @@ import { ComponentPropsWithoutRef, useContext, useRef } from "react";
 import AuthContext, { Image } from "../Context/AuthContext";
 import EditIcon from "./Shared/EditIcon";
 import TrashIcon from "./Shared/TrashIcon";
-import { cn } from "./Utils/func";
+import { cn, getMonth } from "./Utils/func";
 
 type CustomPictureProps = {
   classDiv?: string;
@@ -20,8 +20,6 @@ type CustomPictureProps = {
   handleOpen: () => void;
 } & ComponentPropsWithoutRef<"div">;
 
-// type Orientation = "portrait" | "landscape" | "";
-
 const CustomPicture = ({
   pictureData,
   classImg = "w-full h-full",
@@ -35,20 +33,12 @@ const CustomPicture = ({
   handleSelectPicture,
   ...props
 }: CustomPictureProps) => {
-  // const { url, legend, keywords } = pictureData;
-  // console.log(pictureData);
-
   const { authState } = useContext(AuthContext);
   const imgRef = useRef<HTMLImageElement | null>(null);
-
-  const bgUrlArray = pictureData?.url?.split("/");
-  bgUrlArray?.splice(2, 0, "mini");
-  const bgUrl = bgUrlArray?.join("/");
 
   const thumbUrlArray = pictureData?.url?.split("/");
   thumbUrlArray?.splice(2, 0, "thumb");
   const thumbUrl = inAlbum ? thumbUrlArray?.join("/") : pictureData?.url;
-  // const [loaded, setLoaded] = useState(false);
 
   const flatKeys = pictureData?.keyword?.map((word) => word.word);
 
@@ -73,9 +63,6 @@ const CustomPicture = ({
 
   return (
     <>
-      {/* {!loaded ? (
-        <Skeleton variant="rectangular" width="100%" height={450} />
-      ) : ( */}
       <div
         {...props}
         className={cn(
@@ -84,27 +71,20 @@ const CustomPicture = ({
             "h-auto sm:max-h-[500px]": inAlbum,
           }
         )}
-        style={{
-          backgroundImage: `url(${
-            import.meta.env.VITE_BACKEND_IMAGES
-          }/${bgUrl}) no-repeat`,
-        }}
       >
         <img
           onLoad={handleLoading}
           ref={imgRef}
-          src={`${
-            !pictureData?.url.includes("mockImage")
-              ? import.meta.env.VITE_BACKEND_IMAGES
-              : ""
-          }/${thumbUrl}`}
+          src={`${import.meta.env.VITE_BACKEND_IMAGES}/${thumbUrl}`}
           className={cn(
             `${classImg} backdrop-blur-xl hover:cursor-zoom-in object-cover `,
             {
               "w-full aspect-video hover:cursor-default": !inAlbum,
             }
           )}
-          alt={""}
+          alt={`picture of ${pictureData?.keyword?.map(
+            (keyword) => keyword.word
+          )}`}
           loading={loading}
           onClick={() => (inAlbum ? handleClick && handleShowPicture() : null)}
         ></img>
@@ -123,7 +103,7 @@ const CustomPicture = ({
           {authState.user?.userId === pictureData?.user?.id ? (
             <TrashIcon onClick={handleDeletePicture} />
           ) : null}
-          {`Photo ajoutée par ${
+          {`Ajoutée par ${
             pictureData?.user?.name
               ? pictureData?.user?.name
               : "Utilisateur Supprimé"
@@ -143,8 +123,14 @@ const CustomPicture = ({
           )}
         >
           {pictureData?.legend && pictureData?.legend}
-          <span className={cn({ "mt-1": pictureData?.legend })}>
-            {new Date(pictureData.date.date).toLocaleDateString()}
+          <span
+            className={cn("first-letter:uppercase", {
+              "mt-1 ": pictureData?.legend,
+            })}
+          >
+            {`${getMonth(new Date(pictureData?.date?.date))} ${new Date(
+              pictureData.date.date
+            ).getFullYear()}`}
           </span>
         </div>
 

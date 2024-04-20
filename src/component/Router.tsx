@@ -8,7 +8,6 @@ import ProtectedRoutes from "./ProtectedRoutes";
 import PageSqueleton from "./SuspenseComponent/PageSqueleton";
 
 const LazyAlbum = React.lazy(() => import("../pages/Album"));
-// const LazyHome = React.lazy(() => import("../pages/Home"));
 const LazyUpload = React.lazy(() => import("../pages/Upload"));
 const LazyMissing = React.lazy(() => import("./Errors/404"));
 const LazyUnauthorized = React.lazy(() => import("./Errors/Unauthorized"));
@@ -61,14 +60,6 @@ const UploadComponent = () => {
     </Suspense>
   );
 };
-
-// const HomeComponent = () => {
-//   return (
-//     <Suspense fallback={<PageSqueleton page="Accueil" />}>
-//       <LazyHome />
-//     </Suspense>
-//   );
-// };
 
 const CreationComponent = () => {
   return (

@@ -1,9 +1,12 @@
+import React, { Suspense } from "react";
 import { Image } from "../../Context/AuthContext";
 import MonthContainer from "../MonthContainer";
+import PictureSqueleton from "../SuspenseComponent/PictureSqueleton";
 import { getMonth } from "../Utils/func";
 
 type SectionDisplayPicturesProps = {
   datas: Image[];
+  year: number;
   originalList: Image[];
   ancient?: boolean;
   periodStart?: number;
@@ -16,6 +19,8 @@ type SectionDisplayPicturesProps = {
   handleOpen: () => void;
 };
 
+const LazyCustomPicture = React.lazy(() => import("../CustomPicture"));
+
 const SectionDisplayPictures = ({
   datas,
   ancient = false,
@@ -26,14 +31,16 @@ const SectionDisplayPictures = ({
   handleOpen,
   handleSelectPicture,
   originalList,
+  year,
 }: SectionDisplayPicturesProps) => {
   const groupPhotos = (datas: Image[]) => {
     const groupMap = new Map();
 
     datas.forEach((photo) => {
       const month = getMonth(new Date(photo.date.date));
-      const yearKey = photo.date.year; // suppose que date est une chaîne ISO
+      const yearKey = photo.date.year > 1949 ? photo.date.year : 1949; // suppose que date est une chaîne ISO
       const mapKey = `${yearKey}-${month}`;
+
       if (!groupMap.has(mapKey)) {
         groupMap.set(mapKey, [photo]);
       } else {
@@ -45,17 +52,17 @@ const SectionDisplayPictures = ({
     // et les valeurs sont des tableaux de photos. Convertissons-le en tableau de tableaux de photos.
     return Array.from(groupMap.values());
   };
-  // console.log(groupPhotos(datas));
 
   return datas.length > 0 ? (
     <section
-      id={String(periodStart)}
-      className="w-full self-center flex flex-col last:mb-10 year-section "
+      id={String(year)}
+      className="w-full self-center flex flex-col last:pb-10 year-section "
     >
       <h2 className=" underline underline-offset-4 mb-8 text-4xl w-fit self-center">
-        {ancient ? "Avant 1950" : `Année ${periodStart} `}
+        {ancient ? "Avant 1950" : `Année ${year} `}
       </h2>
       {datas &&
+        year > 1949 &&
         groupPhotos(datas)?.map((item, index) => {
           return (
             <MonthContainer
@@ -77,6 +84,43 @@ const SectionDisplayPictures = ({
             />
           );
         })}
+      {year <= 1949 && (
+        <div className="w-full flex flex-wrap gap-2">
+          {datas &&
+            datas.map((item, index) => {
+              return (
+                <Suspense
+                  fallback={
+                    <PictureSqueleton className="flex-[0_1_48%] sm:flex-[0_1_32.2%] lg:flex-[0_1_24.2%] xl:flex-[0_1_16.1%] xxl:flex-[0_1_12%]  aspect-square" />
+                  }
+                  key={index}
+                >
+                  <LazyCustomPicture
+                    index={index}
+                    handleOpen={handleOpen}
+                    pictureData={item}
+                    className="flex-[0_1_48%] sm:flex-[0_1_32.2%] lg:flex-[0_1_24.2%] xl:flex-[0_1_16.1%] xxl:flex-[0_1_12%] aspect-square relative"
+                    onEdit={() => {
+                      const pictureIndex = originalList.findIndex(
+                        (picture) => picture.id === item.id
+                      );
+                      onEdit(pictureIndex);
+                    }}
+                    handleSelectPicture={() => {
+                      const pictureIndex = originalList.findIndex(
+                        (picture) => picture.id === item.id
+                      );
+                      handleSelectPicture(pictureIndex);
+                    }}
+                    handleClick={handleClick}
+                    inAlbum
+                    loading={"lazy"}
+                  />
+                </Suspense>
+              );
+            })}
+        </div>
+      )}
     </section>
   ) : null;
 };

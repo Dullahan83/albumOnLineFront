@@ -12,6 +12,7 @@ const Layout = ({
 }) => {
   const location = useLocation();
   const { pathname } = location;
+  const pages = ["/", "/upload", "/creation", "/albumChoice"];
   return (
     <div
       className={cn(
@@ -19,11 +20,7 @@ const Layout = ({
         {
           "flex items-center justify-center": withoutHeader,
           "bg-no-repeat bg-cover bg-center bg-[url(/Error404.png)]":
-            pathname !== "/" &&
-            pathname !== "/upload" &&
-            !pathname.includes("/album") &&
-            pathname !== "/creation" &&
-            pathname !== "/albumChoice",
+            !pages.includes(pathname) && !pathname.includes("/album"),
           "bg-no-repeat bg-cover bg-center bg-[url(/UnauthorizedBackgroundDark.png)]  ":
             pathname === "/Unauthorized",
         }

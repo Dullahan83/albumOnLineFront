@@ -40,7 +40,6 @@ const UpdateModal = ({ open, onClose, pictureData }: UpdateModalProps) => {
   const [legende, setLegende] = useState("");
 
   const { handleToast, Toast } = useToast();
-
   const updateMutation = useMutation({
     mutationFn: updatePicture,
     onSuccess: () => {
@@ -63,6 +62,13 @@ const UpdateModal = ({ open, onClose, pictureData }: UpdateModalProps) => {
       const newList = new Set([...keywordList, value.toLowerCase().trim()]);
       setKeywordList(Array.from(newList));
       formRef.current.keywords.value = "";
+      formRef.current.keywords.focus();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleAddKeyword();
     }
   };
 
@@ -139,6 +145,8 @@ const UpdateModal = ({ open, onClose, pictureData }: UpdateModalProps) => {
                 variant="outlined"
                 label="Mot(s) clé(s)"
                 fullWidth
+                onKeyDown={handleKeyDown}
+                onBlur={handleAddKeyword}
               />
               <Button
                 onClick={handleAddKeyword}

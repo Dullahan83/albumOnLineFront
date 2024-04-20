@@ -49,8 +49,7 @@ const AlbumChoiceModal = ({ open, onClose }: AlbumChoiceModalProps) => {
       aria-describedby="album choice modal"
       PaperProps={{
         sx: {
-          padding: "16px", // Applique un padding autour du contenu du Dialog
-          paddingTop: 0,
+          padding: "16px",
           maxWidth: "550px",
           borderRadius: "16px",
         },

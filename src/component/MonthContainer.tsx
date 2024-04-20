@@ -58,7 +58,6 @@ const MonthContainer = ({
                   const pictureIndex = originalList.findIndex(
                     (picture) => picture.id === item.id
                   );
-                  // console.log(originalList[pictureIndex]);
                   handleSelectPicture(pictureIndex);
                 }}
                 handleClick={handleClick}

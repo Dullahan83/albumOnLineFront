@@ -1,7 +1,8 @@
 import MuiAlert, { AlertProps } from "@mui/material/Alert";
+import Slide, { SlideProps } from "@mui/material/Slide";
 import Snackbar from "@mui/material/Snackbar";
-import Stack from "@mui/material/Stack";
 import * as React from "react";
+import { IToast } from "../../Hooks/useToast";
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
   props,
@@ -9,46 +10,49 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 ) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
-interface ISnackBar {
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  content: string;
-  type?: "success" | "error" | "warning" | "info";
+type IToastProps = {
+  toast: IToast;
+  removeToast: (val: number) => void;
+};
+
+function SlideTransition(props: SlideProps) {
+  return <Slide {...props} direction="down" exit />;
 }
-export default function Toast({
-  open,
-  setOpen,
-  content,
-  type = "success",
-}: ISnackBar) {
+
+export default function Toast({ toast, removeToast }: IToastProps) {
+  const [open, setOpen] = React.useState(toast.open);
   const handleClose = (
     event?: React.SyntheticEvent | Event,
-    reason?: string
+    reason?: string,
+    id?: number
   ) => {
     if (reason === "clickaway") {
       return;
     }
-
     setOpen(false);
+    removeToast(id!);
   };
 
   return (
-    <Stack spacing={2} sx={{ width: "100%" }}>
-      <Snackbar
-        open={open}
-        autoHideDuration={4000}
+    <Snackbar
+      open={open}
+      autoHideDuration={4000}
+      onClose={handleClose}
+      anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      sx={{ position: "relative", width: "fit-content" }}
+      TransitionComponent={SlideTransition}
+      TransitionProps={{
+        onExited: () => removeToast(toast.id),
+      }}
+    >
+      <Alert
         onClose={handleClose}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        severity={toast.type}
+        sx={{ width: "100%" }}
+        className="whitespace-pre-line"
       >
-        <Alert
-          onClose={handleClose}
-          severity={type}
-          sx={{ width: "100%" }}
-          className=" whitespace-pre-line"
-        >
-          {content}
-        </Alert>
-      </Snackbar>
-    </Stack>
+        {toast.content}
+      </Alert>
+    </Snackbar>
   );
 }

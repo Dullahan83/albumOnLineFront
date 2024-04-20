@@ -24,6 +24,7 @@ const ConfirmationModal = forwardRef<HTMLDialogElement, ConfirmationModalProps>(
         queryClient.invalidateQueries({ queryKey: ["album"] });
       },
     });
+
     const handleClick = (
       e: React.MouseEvent<HTMLDialogElement, MouseEvent>
     ) => {
@@ -41,8 +42,6 @@ const ConfirmationModal = forwardRef<HTMLDialogElement, ConfirmationModalProps>(
       onClose();
       setSelected(index);
     };
-
-    // console.log(pictureData)
     return (
       <dialog
         onClick={handleClick}

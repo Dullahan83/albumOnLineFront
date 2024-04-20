@@ -56,7 +56,7 @@ const FilterBlock = ({
           placeholder="Mot clé"
           filterType="keyword"
           id="inputKeyword"
-          filterList={updatedKeywordList}
+          filterList={updatedKeywordList?.sort((a, b) => a.localeCompare(b))}
           setFilter={(filter: Filter) => handleAddFilter(filter)}
           className="bg-secondary dark:bg-secondary-dark rounded-lg"
         />

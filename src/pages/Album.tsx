@@ -1,6 +1,4 @@
-import { CircularProgress } from "@mui/material";
-import React, {
-  Suspense,
+import {
   useCallback,
   useContext,
   useEffect,
@@ -8,42 +6,31 @@ import React, {
   useRef,
   useState,
 } from "react";
+
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import AuthContext, { Image } from "../Context/AuthContext";
 import { useFilter } from "../Hooks/useFilter";
-import usePagination from "../Hooks/usePagination";
 import FilterBlock from "../component/Filters/FilterBlock";
 import FilterThumbnail from "../component/Filters/FilterThumbnail";
 import Layout from "../component/Layout/Layout";
+import SectionDisplayPictures from "../component/Layout/SectionDisplayPictures";
 import TimeLine from "../component/Layout/TimeLine";
+import CarouselModal from "../component/Modals.tsx/CarouselModal";
 import ConfirmationModal from "../component/Modals.tsx/ConfirmationModal";
 import UpdateModal from "../component/Modals.tsx/UpdateImageModal";
 import ReturnTopIcon from "../component/Shared/ReturnTopIcon";
 import PictureContainer from "../component/SuspenseComponent/PictureContainer";
-import SectionSqueleton from "../component/SuspenseComponent/SectionSqueleton";
-
 export type Filter = string | number;
 export type ActiveList = "year" | "keyword";
-
-const LazySectionDisplayPicture = React.lazy(
-  () => import("../component/Layout/SectionDisplayPictures")
-);
-
-const LazyCarouselModal = React.lazy(
-  () => import("../component/Modals.tsx/CarouselModal")
-);
 
 const Album = () => {
   const { data, isLoading } = useContext(AuthContext);
   const { filterState, addFilter, removeFilter, resetFilters } = useFilter();
+
   const [selected, setSelected] = useState<number>(-1);
   const [activeList, setActiveList] = useState<ActiveList | "">("");
   const [showButtonScroll, setShowButtonScroll] = useState(false);
-  const periodInterval = 1;
-
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const confirmationRef = useRef<HTMLDialogElement>(null);
-
+  const [showCarousel, setShowCarousel] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
   // List of available filters
@@ -51,6 +38,11 @@ const Album = () => {
   const [updatedKeywordList, setUpdatedKeywordList] = useState<string[] | null>(
     null
   );
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const confirmationRef = useRef<HTMLDialogElement>(null);
+  const virtuosoRef = useRef<VirtuosoHandle>();
 
   const filterData = useCallback(() => {
     return data?.filter((item) => {
@@ -68,70 +60,54 @@ const Album = () => {
 
   const filteredData = useMemo(() => filterData(), [filterData]);
 
-  const { loadNextBatch, paginatedData } = usePagination({
-    filteredData,
-    scrollContainerRef,
-  });
-
-  const createIntervalsPicturesDisplay = (
-    datas: Image[],
-    periodStart: number
-  ) => {
-    // console.log(datas, periodStart)
-    const sortedDatas = datas?.sort((a, b) =>
-      b.date.date.localeCompare(a.date.date)
-    );
-    const isAncient = sortedDatas && sortedDatas[0]?.date?.year < 1950;
-    const nextPeriodStart = periodStart - periodInterval;
-
-    const arr = sortedDatas?.filter((Item) => {
-      if (Item.date.year < 1950) {
-        // console.log("on devrait en avoir")
-        return Item;
+  const groupByYear = (images: Image[]): Record<number, Image[]> => {
+    return images?.reduce((acc, image) => {
+      let year = image?.date.year;
+      if (year < 1950) {
+        year = 1949; // Grouper toutes les années inférieures à 1950 sous l'année 1949
       }
-      if (Item.date.year <= periodStart && Item.date.year > nextPeriodStart) {
-        return Item;
+      if (!acc[year]) {
+        acc[year] = [];
       }
-    });
-    if (isAncient) {
-      return (
-        <Suspense fallback={<div>chargement en cours ...</div>}>
-          <LazySectionDisplayPicture
-            ancient={isAncient}
-            datas={arr}
-            onEdit={handleOpenUpdate}
-            handleOpen={handleOpenConfirmModal}
-            handleSelectPicture={handleSelectPicture}
-            handleClick={handleOpenModal}
-            selected={selected}
-            originalList={filteredData}
-          ></LazySectionDisplayPicture>
-        </Suspense>
-      );
-    }
+      acc[year].push(image);
+      return acc;
+    }, {});
+  };
 
-    const restArray = sortedDatas.filter(
-      (item) => item.date.year <= nextPeriodStart
+  const formattedDataForVirtualizedRendering = useMemo(() => {
+    const groupedByYear = groupByYear(filteredData);
+    if (!groupedByYear) return;
+    return Object.entries(groupedByYear)
+      .map(([year, images]) => ({
+        year: parseInt(year),
+        images: images.sort((a, b) => b.date.date.localeCompare(a.date.date)),
+      }))
+      .sort((a, b) => b.year - a.year); // Trier par année décroissante
+  }, [filteredData]);
+
+  const scrollToIndex = (item: number) => {
+    const index = formattedDataForVirtualizedRendering.findIndex(
+      (obj) => obj.year === item
     );
-    if (!arr.length && !restArray.length) return null; // Arrêt si aucune image ne correspond
 
+    if (index === -1 || !virtuosoRef.current) return;
+    virtuosoRef.current?.scrollToIndex(index);
+  };
+
+  const displayContent = (index: number) => {
+    const { year, images } = formattedDataForVirtualizedRendering[index];
     return (
-      <>
-        <Suspense fallback={<SectionSqueleton />}>
-          <LazySectionDisplayPicture
-            datas={arr}
-            periodStart={periodStart}
-            periodEnd={periodStart - periodInterval}
-            onEdit={handleOpenUpdate}
-            handleOpen={handleOpenConfirmModal}
-            handleSelectPicture={handleSelectPicture}
-            handleClick={handleOpenModal}
-            selected={selected}
-            originalList={filteredData}
-          ></LazySectionDisplayPicture>
-        </Suspense>
-        {createIntervalsPicturesDisplay(restArray, nextPeriodStart)}
-      </>
+      <SectionDisplayPictures
+        year={year}
+        datas={images}
+        ancient={year <= 1950}
+        onEdit={handleOpenUpdate}
+        handleOpen={handleOpenConfirmModal}
+        handleSelectPicture={handleSelectPicture}
+        handleClick={handleOpenModal}
+        selected={selected}
+        originalList={filteredData}
+      />
     );
   };
 
@@ -153,6 +129,7 @@ const Album = () => {
 
   //Carousel state management logic
   const handleOpenModal = () => {
+    setShowCarousel(true);
     dialogRef.current?.showModal();
   };
 
@@ -165,6 +142,7 @@ const Album = () => {
       }, 500); // matching css animation timing
     }
   };
+
   const handleOpenConfirmModal = () => {
     confirmationRef.current?.showModal();
   };
@@ -178,16 +156,15 @@ const Album = () => {
       }, 500); // matching css animation timing
     }
   };
+
   // Save the selected picture in state
   const handleSelectPicture = (index: number) => {
     if (filterState.year.length) {
-      if (index < paginatedData.length) setSelected(index);
+      if (index < filteredData.length) setSelected(index);
       else setSelected(-1);
     } else setSelected(index);
   };
-  const handleSelectPicture2 = (index: number) => {
-    setSelected(index);
-  };
+
   function arraysEqual(arr1: Filter[], arr2: Filter[]) {
     if (!arr1 || !arr2) return false;
     if (arr1.length !== arr2.length) return false;
@@ -214,7 +191,7 @@ const Album = () => {
     newKeywordList = newKeywordList.filter(
       (keyword) => !filterState.keyword.includes(keyword)
     );
-    // Vérifiez si les nouvelles listes sont différentes des listes actuelles avant de mettre à jour les états
+    // Check if there is difference in arrays to avoid too many rerenders
     if (!arraysEqual(newYearList, updatedYearList)) {
       setUpdatedYearList(newYearList);
     }
@@ -223,6 +200,7 @@ const Album = () => {
     }
   }, [filteredData, updatedKeywordList, updatedYearList]);
 
+  // Handle scrollTopButton logic
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > window.innerHeight) {
@@ -240,7 +218,7 @@ const Album = () => {
       <Layout>
         <div
           className={
-            "flex flex-col items-center relative z-0 h-full  flex-grow px-6 sm:px-16 lg:px-28"
+            "flex flex-col items-center relative z-0 min-h-[calc(100vh-73px)]  flex-grow px-6 sm:px-16 lg:px-28 sm:pb-4"
           }
         >
           <h1 className="text-3xl my-10 font-bold">Album</h1>
@@ -277,28 +255,30 @@ const Album = () => {
           ) : (
             <>
               <div
-                className="flex w-full relative -z-10 "
+                className="flex w-full relative -z-10 flex-grow "
                 ref={scrollContainerRef}
               >
-                {updatedYearList && (
+                {updatedYearList?.length > 2 && (
                   <TimeLine
-                    // filterState={filterState}
+                    scrollTo={scrollToIndex}
                     arrayYear={updatedYearList.sort((a, b) => b - a)}
                   />
                 )}
-                <div className="relative flex flex-col w-full ">
-                  {filteredData &&
-                    createIntervalsPicturesDisplay(
-                      filteredData,
-                      new Date().getFullYear()
+
+                <div className="w-full h-fit">
+                  {!isLoading &&
+                    formattedDataForVirtualizedRendering?.length > 0 && (
+                      <Virtuoso
+                        ref={virtuosoRef}
+                        useWindowScroll
+                        itemContent={(index) => displayContent(index)}
+                        data={formattedDataForVirtualizedRendering}
+                      />
                     )}
                 </div>
               </div>
             </>
           )}
-          {loadNextBatch ? (
-            <CircularProgress size={40} className="mt-4" />
-          ) : null}
           {showButtonScroll && (
             <ReturnTopIcon
               size="40px"
@@ -308,41 +288,41 @@ const Album = () => {
             />
           )}
         </div>
-        <Suspense
-          fallback={<div className="fixed w-full h-full bg-black/20"></div>}
-        >
-          <LazyCarouselModal
-            imgArray={!filterState.year.length ? filteredData : paginatedData}
-            index={selected}
-            onClose={handleCloseModal}
-            setIndex={handleSelectPicture2}
-            ref={dialogRef}
-          />
-        </Suspense>
-        {isUpdating && paginatedData ? (
+
+        <CarouselModal
+          imgArray={filteredData?.sort((a, b) =>
+            b.date.date.localeCompare(a.date.date)
+          )}
+          index={selected}
+          onClose={handleCloseModal}
+          setIndex={handleSelectPicture}
+          show={showCarousel}
+          ref={dialogRef}
+        />
+        {isUpdating && filteredData ? (
           <UpdateModal
             open={isUpdating}
             onClose={handleCloseUpdate}
             pictureData={
-              selected !== -1 ? paginatedData[selected] : paginatedData[0]
+              selected !== -1 ? filteredData[selected] : filteredData[0]
             }
           />
         ) : null}
-        {paginatedData && (
+        {filteredData && (
           <ConfirmationModal
             imgArray={filteredData}
             index={selected}
             setSelected={handleSelectPicture}
             key={
               selected !== -1 && !filterState.year.length
-                ? paginatedData.length && paginatedData[selected]?.id
+                ? filteredData.length && filteredData[selected]?.id
                 : data[0]?.id
             }
             pictureData={
               selected !== -1
-                ? paginatedData[selected]
-                : paginatedData.length
-                ? paginatedData[0]
+                ? filteredData[selected]
+                : filteredData.length
+                ? filteredData[0]
                 : data[0]
             }
             ref={confirmationRef}
@@ -355,3 +335,6 @@ const Album = () => {
 };
 
 export default Album;
+
+// On dit souvent que se sont nos proches, nos connaissances qui peuvent nous lancer sur la voix d'un premier projets en dehors de ceux rencontrer lors des différentes formations.
+// Et c'est effectivement mon cas, un simple partage de photos de famille, de la création d'un album, au partage de ce dernier, un challenge toujours sympathique permettant de revoir des bases et de nouvelles technos !

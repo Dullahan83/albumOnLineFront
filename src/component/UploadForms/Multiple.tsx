@@ -180,6 +180,7 @@ const Multiple = () => {
                 label="Mot(s) clé(s)"
                 fullWidth
                 onKeyDown={handleKeydown}
+                onBlur={handleAddKeyword}
                 spellCheck="true"
                 autoComplete="true"
               />

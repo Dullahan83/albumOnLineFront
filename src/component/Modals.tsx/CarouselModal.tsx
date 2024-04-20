@@ -8,10 +8,11 @@ interface CarouselProps extends ComponentPropsWithoutRef<"dialog"> {
   index: number;
   onClose: () => void;
   setIndex: (val: number) => void;
+  show: boolean;
 }
 
 const CarouselModal = forwardRef<HTMLDialogElement, CarouselProps>(
-  ({ onClose, ...props }, ref) => {
+  ({ onClose, show, ...props }, ref) => {
     return (
       <dialog
         ref={ref}
@@ -24,7 +25,7 @@ const CarouselModal = forwardRef<HTMLDialogElement, CarouselProps>(
             color="#fff"
             size="40px"
           />
-          <Carousel {...props} onClose={onClose} />
+          {show ? <Carousel {...props} onClose={onClose} /> : null}
         </div>
       </dialog>
     );

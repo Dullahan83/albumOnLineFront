@@ -8,9 +8,7 @@ import { cn } from "../component/Utils/func";
 const Home = () => {
   const { data, mockupData, authState, albumList, currentAlbum } =
     useContext(AuthContext);
-  // const { getParams } = useOptionalParams();
   const currAlbum = albumList.filter((album) => album.albumId === currentAlbum);
-  // const auth = getParams("auth");
 
   return (
     <>
@@ -20,8 +18,6 @@ const Home = () => {
             "flex flex-col items-center gap-y-[8vh] sm:gap-y-[5vh] sm:justify-normal xl:gap-y-[6vh] h-full w-full flex-[1_1_100%] min-h-[calc(100vh-73px)]",
             {
               " sm:gap-y-0 sm:justify-between": !authState.user,
-              // "py-0 gap-y-0 justify-evenly":
-              //   auth === import.meta.env.VITE_CREATION_AUTH,
             }
           )}
         >
@@ -51,7 +47,6 @@ const Home = () => {
                   handleOpen={() => null}
                 />
               </div>
-              {/* {auth === import.meta.env.VITE_CREATION_AUTH ? ( */}
               <>
                 <p className="text-base w-11/12 md:text-xl  whitespace-pre-line">
                   Immortalisez vos souvenirs et partagez vos moments préférés
@@ -66,7 +61,6 @@ const Home = () => {
                   Créer un nouvel album
                 </Link>
               </>
-              {/* ) : null} */}
             </>
           )}
         </div>

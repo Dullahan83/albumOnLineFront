@@ -10,7 +10,6 @@ import {
 } from "react";
 import { MyJwtPayload, useAuth } from "../Hooks/useAuth";
 import { getPictures } from "../component/Utils/func";
-// import { useLocation } from "react-router-dom";
 
 export interface Image {
   id: number;
@@ -31,7 +30,6 @@ export interface Image {
 interface User {
   userId: number;
   authorized: boolean;
-  // Ajoutez d'autres propriétés de l'utilisateur si nécessaire
 }
 
 interface AuthState {
